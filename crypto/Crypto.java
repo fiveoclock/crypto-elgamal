@@ -1,16 +1,16 @@
 package crypto;
 
-import java.math.BigInteger;
-
 public class Crypto {
 	private LibCrypto lib;
 	private RSA rsa;
+	private DSA dsa;
 
     private int id = 0;
     
 	public Crypto() {
 		lib = new LibCrypto();
 		rsa = new RSA();
+		dsa = new DSA();
 	}
 
 	public static void main(String[] args) {
@@ -56,8 +56,36 @@ public class Crypto {
 					else
 						printUsage("Not enough parameters");
 					break;
+				default:
+					printUsage("Unknown command");
 					}
 				break;
+			case "dsa":
+				switch(args[1]) {
+				case "generate-signature":
+					if (args.length > 2)
+						c.dsaGenerateSignature(args[2]);
+					else
+						printUsage("Not enough parameters");
+					break;
+				case "sign":
+					if (args.length > 3)
+						c.dsaSign(args[2], args[3]);
+					else
+						printUsage("Not enough parameters");
+					break;
+				case "verify":
+					if (args.length > 5)
+						c.dsaVerify(args[2], args[3], args[4], args[5]);
+					else
+						printUsage("Not enough parameters");
+					break;
+				default:
+					printUsage("Unknown command");
+					}
+				break;
+			default:
+				printUsage("Unknown command");
 			}
 		}
 		else {
@@ -69,28 +97,45 @@ public class Crypto {
 		System.out.println(lib.getHexHash(func, text));
 	}
 	
+	// RSA//
 	private void rsaGenerateKeys(String prefix) {
 		rsa.generateKeys(2048);
 		rsa.saveKeys(prefix);
 	}
-	
 	private void rsaEncrypt(String prefix, String message) {
 		rsa.loadKeys(prefix);
 		rsa.encrypt(message);
 	}
-	
 	private void rsaDecrypt(String prefix, String cipher) {
 		rsa.loadKeys(prefix);
 		rsa.decrypt(cipher);
 	}
 
-
+	// DSA//
+	private void dsaGenerateSignature(String prefix) {
+		dsa.generateSignature();
+		dsa.saveKeys(prefix);
+	}
+	private void dsaSign(String prefix, String message) {
+		dsa.loadKeys(prefix);
+		dsa.sign(message);
+	}
+	private void dsaVerify(String prefix, String r, String s, String message) {
+		dsa.loadKeys(prefix);
+		if (dsa.verify(r, s, message)) {
+			System.out.println("> Correct!");
+		}
+		else {
+			System.out.println("> Incorrect!");
+		}
+	}
 	
+
+	// general methods
 	private static void printUsage(String message) {
 		printUsage();
 		System.out.println(message);
 	}
-	
 	private static void printUsage() {
 		String help = "Usage:\n"
 				+ "hash function input\n"
@@ -104,6 +149,6 @@ public class Crypto {
 	    		+ "\n"
 	    		+ "rsa decrypt key-prefix input\n"
 	    		+ "- decrypts the given input using the keys specified by key-prefix\n";
-		System.out.println(help);
+		System.out.println("Error: " + help);
 	}
 }

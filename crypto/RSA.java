@@ -14,13 +14,6 @@ public class RSA {
 		lib = new LibCrypto();
 	}
 	
-	public RSA(BigInteger e, BigInteger d, BigInteger n) {
-		lib = new LibCrypto();
-		this.e = e;
-		this.d = d;
-		this.n = n;
-	}
-	
 	public void generateKeys(int length) {
 		System.out.print("Calculating p, ");
 		p = lib.generatePrime(length);
@@ -56,17 +49,17 @@ public class RSA {
 	
 	public boolean saveKeys(String prefix) {
 		fh = new FileHelper();
-		fh.writeBytes(prefix+".e.key", e.toString().getBytes());
-		fh.writeBytes(prefix+".d.key", d.toString().getBytes());
-		fh.writeBytes(prefix+".n.key", n.toString().getBytes());
+		fh.writeBytes("rsa."+prefix+".e.key", e.toString().getBytes());
+		fh.writeBytes("rsa."+prefix+".d.key", d.toString().getBytes());
+		fh.writeBytes("rsa."+prefix+".n.key", n.toString().getBytes());
 		return true;
 	}
 	
 	public boolean loadKeys(String prefix) {
 		fh = new FileHelper();
-		e = new BigInteger(fh.readLine(prefix+".e.key"));
-		d = new BigInteger(fh.readLine(prefix+".d.key"));
-		n = new BigInteger(fh.readLine(prefix+".n.key"));
+		e = new BigInteger(fh.readLine("rsa."+prefix+".e.key"));
+		d = new BigInteger(fh.readLine("rsa."+prefix+".d.key"));
+		n = new BigInteger(fh.readLine("rsa."+prefix+".n.key"));
 		//System.out.println("n: " + n);
 		//System.out.println("e: " + e);
 		//System.out.println("d: " + d);
