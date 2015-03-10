@@ -4,10 +4,9 @@ public class Crypto {
 	private LibCrypto lib;
 	private RSA rsa;
 	private DSA dsa;
+	private CertHelper certH;
 
-    private int id = 0;
-    
-	public Crypto() {
+    public Crypto() {
 		lib = new LibCrypto();
 		rsa = new RSA();
 		dsa = new DSA();
@@ -28,62 +27,85 @@ public class Crypto {
 		      }
 	    }
 		
-		if (args.length > 0) {
+		int aNum = args.length;
+		if (aNum > 0) {
 			switch(args[0]) {
 			case "hash":
-				if (args.length > 2)
+				if (aNum > 2)
 					c.hash(args[1], args[2]);
 				else
 					printUsage("Not enough parameters");
 				break;
+			case "cert":
+				if (aNum > 1) {
+					switch(args[1]) {
+					case "read":
+						if (aNum > 2)
+							c.certRead(args[2]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "#todo":
+						if (aNum > 3)
+							c.rsaEncrypt(args[2], args[3]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					}
+					break;
+				}
 			case "rsa":
-				switch(args[1]) {
-				case "generate-keys":
-					if (args.length > 2)
-						c.rsaGenerateKeys(args[2]);
-					else
-						printUsage("Not enough parameters");
+				if (aNum > 1) {
+					switch(args[1]) {
+					case "generate-keys":
+						if (aNum > 2)
+							c.rsaGenerateKeys(args[2]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "encrypt":
+						if (aNum > 3)
+							c.rsaEncrypt(args[2], args[3]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "decrypt":
+						if (aNum > 3)
+							c.rsaDecrypt(args[2], args[3]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					default:
+						printUsage("Unknown command");
+						}
 					break;
-				case "encrypt":
-					if (args.length > 3)
-						c.rsaEncrypt(args[2], args[3]);
-					else
-						printUsage("Not enough parameters");
-					break;
-				case "decrypt":
-					if (args.length > 3)
-						c.rsaDecrypt(args[2], args[3]);
-					else
-						printUsage("Not enough parameters");
-					break;
-				default:
-					printUsage("Unknown command");
-					}
-				break;
+				}
 			case "dsa":
-				switch(args[1]) {
-				case "generate-signature":
-					if (args.length > 2)
-						c.dsaGenerateSignature(args[2]);
-					else
-						printUsage("Not enough parameters");
+				if (aNum > 1) {
+					switch(args[1]) {
+					case "generate-signature":
+						if (aNum > 2)
+							c.dsaGenerateSignature(args[2]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "sign":
+						if (aNum > 3)
+							c.dsaSign(args[2], args[3]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "verify":
+						if (aNum > 5)
+							c.dsaVerify(args[2], args[3], args[4], args[5]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					default:
+						printUsage("Unknown command");
+						}
 					break;
-				case "sign":
-					if (args.length > 3)
-						c.dsaSign(args[2], args[3]);
-					else
-						printUsage("Not enough parameters");
-					break;
-				case "verify":
-					if (args.length > 5)
-						c.dsaVerify(args[2], args[3], args[4], args[5]);
-					else
-						printUsage("Not enough parameters");
-					break;
-				default:
-					printUsage("Unknown command");
-					}
-				break;
+				}
 			default:
 				printUsage("Unknown command");
 			}
@@ -95,6 +117,11 @@ public class Crypto {
 	
 	private void hash(String func, String text) {
 		System.out.println(lib.getHexHash(func, text));
+	}
+	
+	private void certRead(String filename) {
+		certH = new CertHelper();
+		System.out.println( certH.parseCert(certH.readCert(filename)));
 	}
 	
 	// RSA//

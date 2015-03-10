@@ -1,5 +1,6 @@
 package crypto;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,6 +18,18 @@ public class FileHelper {
 			System.out.println("Error writing file");
 		}
 	}
+	
+	public BufferedInputStream openFile(String filename) {
+		try {
+			FileInputStream fis = new FileInputStream(filename);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			return bis;
+		}
+		catch (IOException e) {
+			System.out.println("Error reading file");
+			return null;
+		}
+	}
 
 	public String readLine(String name) {
 		try {
@@ -31,7 +44,7 @@ public class FileHelper {
 			return file;
 		}
 		catch (IOException e) {
-			System.out.println("Error writing file");
+			System.out.println("Error reading file");
 			return null;
 		}
 	}

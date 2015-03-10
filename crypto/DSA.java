@@ -139,8 +139,23 @@ public class DSA {
         return null;
 	}
 	
-	public BigInteger sign(BigInteger r, String message) {
+	public BigInteger sign(String message) {
 		byte[] data = message.getBytes();
+	    ////////// generate k
+		BigInteger k;
+	    do {
+	    	k = new BigInteger(q.bitCount(), new Random());
+        } 
+	    while (k.compareTo(zero) == -1 || k.compareTo(g) == 1);
+	    System.out.println("k: "+k);
+	    
+	    //////////generate r
+		BigInteger r = g.modPow(k, p).mod(q);
+		//todo: if r == 0 calc k again
+		System.out.println("r: "+r);
+	    
+	    
+	    ///
 	    MessageDigest md;
 	    BigInteger s = BigInteger.ONE;
 	    try {
@@ -149,14 +164,15 @@ public class DSA {
 	        BigInteger hash = new BigInteger(md.digest());
 	        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
 	    } catch (NoSuchAlgorithmException ex) {
-	        Logger.getLogger(DSA.class.getName()).log(Level.SEVERE, null, ex);
+	    	System.out.println("error");
 	    }
+	    System.out.println("s: "+s);
 	    return s;
 	}
 
 	public boolean verify(String r2, String s2, String message) {
-		BigInteger r = new BigInteger(r2.getBytes());
-		BigInteger s = new BigInteger(s2.getBytes());
+		BigInteger r = new BigInteger(r2);
+		BigInteger s = new BigInteger(s2);
 		
 		if (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(q) >= 0) {
 	        return false;
