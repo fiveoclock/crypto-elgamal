@@ -45,9 +45,9 @@ public class Crypto {
 						else
 							printUsage("Not enough parameters");
 						break;
-					case "#todo":
+					case "verify":
 						if (aNum > 3)
-							c.rsaEncrypt(args[2], args[3]);
+							c.verifyCert(args[2], args[3]);
 						else
 							printUsage("Not enough parameters");
 						break;
@@ -122,6 +122,10 @@ public class Crypto {
 	private void certRead(String filename) {
 		certH = new CertHelper();
 		System.out.println( certH.parseCert(certH.readCert(filename)));
+	}
+	private void verifyCert(String file_ca, String file_cert) {
+		certH = new CertHelper();
+		System.out.println( certH.verifyCert(certH.readCert(file_ca), certH.readCert(file_cert)));
 	}
 	
 	// RSA//
