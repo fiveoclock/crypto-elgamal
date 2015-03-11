@@ -121,11 +121,17 @@ public class Crypto {
 	
 	private void certRead(String filename) {
 		certH = new CertHelper();
-		System.out.println( certH.parseCert(certH.readCert(filename)));
+		System.out.println( certH.getCertInfo((certH.readCert(filename))));
 	}
 	private void verifyCert(String file_ca, String file_cert) {
 		certH = new CertHelper();
-		System.out.println( certH.verifyCert(certH.readCert(file_ca), certH.readCert(file_cert)));
+		if ( certH.verifyCert(certH.readCert(file_ca), certH.readCert(file_cert)) ) {
+			System.out.println(certH.getCertInfo(certH.readCert(file_cert)));
+			System.out.println("The certificate "+file_cert+" was issued by the CA "+file_ca);
+		}
+		else {
+			System.out.println("The certificate "+file_cert+" was NOT issed by the CA "+file_ca);
+		}
 	}
 	
 	// RSA//

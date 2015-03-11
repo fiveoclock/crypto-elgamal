@@ -9,13 +9,13 @@ import java.io.InputStreamReader;
 
 public class FileHelper {
 	
-	public void writeBytes(String name, byte[] data) {
+	public void writeBytes(String filename, byte[] data) {
 		try {
-			FileOutputStream out = new FileOutputStream(name);
+			FileOutputStream out = new FileOutputStream(filename);
 			out.write(data);
 			out.close();
 		} catch (IOException e) {
-			System.out.println("Error writing file");
+			System.out.println("Error writing file: "+filename);
 		}
 	}
 	
@@ -26,14 +26,15 @@ public class FileHelper {
 			return bis;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file");
+			System.out.println("Error reading file: "+filename+" - exiting");
+			System.exit(1);
 			return null;
 		}
 	}
 
-	public String readLine(String name) {
+	public String readLine(String filename) {
 		try {
-			FileInputStream fis = new FileInputStream(name);
+			FileInputStream fis = new FileInputStream(filename);
 			 
 			//Construct BufferedReader from InputStreamReader
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -44,7 +45,8 @@ public class FileHelper {
 			return file;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file");
+			System.out.println("Error reading file: "+filename+" - exiting");
+			System.exit(1);
 			return null;
 		}
 	}
