@@ -5,6 +5,7 @@ public class Crypto {
 	private RSA rsa;
 	private DSA dsa;
 	private CertHelper certH;
+	private NetHelper net;
 
     public Crypto() {
 		lib = new LibCrypto();
@@ -49,6 +50,24 @@ public class Crypto {
 					case "verify":
 						if (aNum > 3)
 							c.verifyCert(args[2], args[3]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					}
+					break;
+				}
+			case "network":
+				if (aNum > 1) {
+					switch(args[1]) {
+					case "server":
+						if (aNum > 2)
+							c.startServer(args[2]);
+						else
+							printUsage("Not enough parameters");
+						break;
+					case "client":
+						if (aNum > 3)
+							c.startClient(args[2], args[3]);
 						else
 							printUsage("Not enough parameters");
 						break;
@@ -131,6 +150,16 @@ public class Crypto {
 		else {
 			System.out.println("The certificate "+file_cert+" was NOT issed by the CA "+file_ca);
 		}
+	}
+	
+	/// Networking
+	private void startServer(String port) {
+		net = new NetHelper();
+		net.listen(Integer.parseInt(port));
+	}
+	
+	private void startClient(String filename, String filenam) {
+		System.out.println( certH.getCertInfo((certH.readCert(filename))));
 	}
 	
 	// RSA//

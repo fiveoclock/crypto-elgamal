@@ -124,7 +124,7 @@ public class DSA {
 			// Calculate s = k^-1 (H(m) + xr) mod q
 		    MessageDigest md;
 		    try {
-		        md = MessageDigest.getInstance("SHA-12");
+		        md = MessageDigest.getInstance("SHA-1");
 		        md.update(data);
 		        BigInteger hash = new BigInteger(md.digest());
 		        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
@@ -159,8 +159,8 @@ public class DSA {
 	        BigInteger u2 = r.multiply(w).mod(q);
 	        v = ((g.modPow(u1, p).multiply(y.modPow(u2, p))).mod(p)).mod(q);
 	    } 
-	    catch (NoSuchAlgorithmException ex) {
-	    	System.out.println("error");
+	    catch (NoSuchAlgorithmException e) {
+	    	System.out.println("error"+" - "+e.getMessage());
 	    }
 	    return v.compareTo(r) == 0;
 	}
