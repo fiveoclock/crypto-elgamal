@@ -10,6 +10,7 @@ public class Crypto {
 		lib = new LibCrypto();
 		rsa = new RSA();
 		dsa = new DSA();
+		certH = new CertHelper();
 	}
 
 	public static void main(String[] args) {
@@ -83,9 +84,9 @@ public class Crypto {
 			case "dsa":
 				if (aNum > 1) {
 					switch(args[1]) {
-					case "generate-signature":
+					case "generate-keys":
 						if (aNum > 2)
-							c.dsaGenerateSignature(args[2]);
+							c.dsaGenerateKeys(args[2]);
 						else
 							printUsage("Not enough parameters");
 						break;
@@ -120,11 +121,9 @@ public class Crypto {
 	}
 	
 	private void certRead(String filename) {
-		certH = new CertHelper();
 		System.out.println( certH.getCertInfo((certH.readCert(filename))));
 	}
 	private void verifyCert(String file_ca, String file_cert) {
-		certH = new CertHelper();
 		if ( certH.verifyCert(certH.readCert(file_ca), certH.readCert(file_cert)) ) {
 			System.out.println(certH.getCertInfo(certH.readCert(file_cert)));
 			System.out.println("The certificate "+file_cert+" was issued by the CA "+file_ca);
@@ -149,8 +148,8 @@ public class Crypto {
 	}
 
 	// DSA//
-	private void dsaGenerateSignature(String prefix) {
-		dsa.generateSignature();
+	private void dsaGenerateKeys(String prefix) {
+		dsa.generateKeys();
 		dsa.saveKeys(prefix);
 	}
 	private void dsaSign(String prefix, String message) {
@@ -166,7 +165,6 @@ public class Crypto {
 			System.out.println("> Incorrect!");
 		}
 	}
-	
 
 	// general methods
 	private static void printUsage(String message) {

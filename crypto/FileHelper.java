@@ -15,7 +15,7 @@ public class FileHelper {
 			out.write(data);
 			out.close();
 		} catch (IOException e) {
-			System.out.println("Error writing file: "+filename);
+			System.out.println("Error writing file: "+filename+" - "+e.getMessage());
 		}
 	}
 	
@@ -26,7 +26,7 @@ public class FileHelper {
 			return bis;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename+" - exiting");
+			System.out.println("Error reading file: "+filename+" - exiting"+" - "+e.getMessage());
 			System.exit(1);
 			return null;
 		}
@@ -45,7 +45,7 @@ public class FileHelper {
 			return file;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename+" - exiting");
+			System.out.println("Error reading file: "+filename+" - exiting"+" - "+e.getMessage());
 			System.exit(1);
 			return null;
 		}

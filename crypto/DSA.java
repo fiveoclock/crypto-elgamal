@@ -3,11 +3,12 @@ package crypto;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 public class DSA {
 	private static BigInteger zero = BigInteger.ZERO;
 	private static BigInteger one = BigInteger.ONE;
+	private static int primeCertainty = 20;
+
 	private LibCrypto lib;
 	private FileHelper fh;
 	
@@ -16,72 +17,67 @@ public class DSA {
 	
 	public DSA() {
 		lib = new LibCrypto();
+		fh = new FileHelper();
 	}
 	
-	public void generateSignature() {
+	public void generateKeys() {
+		// p and q Length pairs: (1024,160), (2048,224), (2048,256), and (3072,256).
+		// q must be a prime; choosing 160 Bit for q
+		System.out.print("Calculating q: ");
 		q = lib.generatePrime(160);
-		System.out.println("q: " + q);
-		System.out.print("Calculating p ");
-		/*
-	    int pLength;
-	    do {
-	    	pLength = 512 + 64*lib.randInt(2);
-	        p = lib.generatePrime(pLength);
-	        BigInteger pTemp = p.subtract(BigInteger.ONE);
-	        p = p.subtract(pTemp.remainder(q));
-	        System.out.print(".");
-	    } 
-	    while (!p.isProbablePrime(30) || p.bitLength() != pLength);
-	    */
-	    p = generateP(q, 512);
-	    System.out.println("\np: " + p);
-	    System.out.println("Rest: " + p.subtract(one).mod(q));
+		System.out.println(q + " - Bitlength: " + q.bitLength());
 		
-	    //////////// calculate g
-	    // g = h^((p–1)/q) mod p
-	    // Choose g, a number whose multiplicative order modulo p is q. 
-	    // This may be done by setting g = h(p–1)/q mod p for some arbitrary h (1 < h < p−1), 
-	    // and trying again with a different h if the result comes out as 1. Most choices of h will 
-	    // lead to a usable g; commonly h=2 is used.
+		// p must be a prime
+		System.out.print("Calculating p ");
+		p = calculateP(q);
+	    System.out.println("\np: " + p + " - Bitlength: " + p.bitLength());
+	    System.out.println("Test-Division: ((p-1)/q) - Rest: " + p.subtract(one).mod(q));
 	    
-	    g = BigInteger.valueOf(2).modPow(p.subtract(one).divide(q), p);
-	    System.out.println("g: "+g);
-	    
-	    ////////// generate x
+	    // choose an h with (1 < h < p−1) and try again if g comes out as 1.
+    	// Most choices of h will lead to a usable g; commonly h=2 is used.
+	    System.out.print("Calculating g: ");
+	    BigInteger h = BigInteger.valueOf(2);
+	    BigInteger pMinusOne = p.subtract(one);
 	    do {
-	    	x = new BigInteger(q.bitCount(), new Random());
-        } 
-	    while (x.compareTo(zero) == -1 || x.compareTo(g) == 1);
+	    	g = h.modPow(pMinusOne.divide(q), p);
+	    	System.out.print(".");
+	    }
+	    while (g == one);
+	    System.out.println(" "+g);
 	    
+	    // Choose x by some random method, where 0 < x < q
+	    // this is going to be the private key
+	    do {
+	    	x = new BigInteger(q.bitCount(), lib.getRandom());
+        }
+	    while (x.compareTo(zero) == -1);
 	    
-	    ////////// calculate y
+	    // Calculate y = g^x mod p
 	    y = g.modPow(x, p);
 	    
-	    System.out.println("Private key (x): " + x);
-        System.out.println("Public key (y): " + y);
-
+        System.out.println("y: " + y);
+        System.out.println("-------------------");
+        System.out.println("Private key (x): " + x);
 	}
 	
-	private BigInteger generateP(BigInteger q, int l) {
-	    if (l % 64 != 0) {
-	        throw new IllegalArgumentException("L value is wrong");
-	    }
-	    int primeCenterie = 20;
-	    Random rand = new Random();
-	    BigInteger pTemp;
-	    BigInteger pTemp2;
+	private BigInteger calculateP(BigInteger q) {
+		// p must be a prime of the length (L): 512 < L < 1024 where L must be a multiple of 64
+		// also q must be a divider of (p-1)
+		int pLength = 512 + 64*lib.randInt(8);
+	    BigInteger pTest;
+	    BigInteger pMinusOne;
+	    
 	    do {
-	        pTemp = new BigInteger(l, primeCenterie, rand);
-	        pTemp2 = pTemp.subtract(BigInteger.ONE);
-	        pTemp = pTemp.subtract(pTemp2.remainder(q));
+	        pTest = new BigInteger(pLength, primeCertainty, lib.getRandom());
+	        pMinusOne = pTest.subtract(one);
+	        pTest = pTest.subtract(pMinusOne.remainder(q));
 	        System.out.print(".");
-	    } while (!pTemp.isProbablePrime(primeCenterie) || pTemp.bitLength() != l);
-	    return pTemp;
+	    }
+	    while (!pTest.isProbablePrime(primeCertainty) || pTest.bitLength() != pLength);
+	    return pTest;
 	}
 
-	
 	public boolean saveKeys(String prefix) {
-		fh = new FileHelper();
 		fh.writeBytes("dsa."+prefix+".p.key", p.toString().getBytes());
 		fh.writeBytes("dsa."+prefix+".q.key", q.toString().getBytes());
 		fh.writeBytes("dsa."+prefix+".g.key", g.toString().getBytes());
@@ -91,7 +87,6 @@ public class DSA {
 	}
 	
 	public boolean loadKeys(String prefix) {
-		fh = new FileHelper();
 		p = new BigInteger(fh.readLine("dsa."+prefix+".p.key"));
 		q = new BigInteger(fh.readLine("dsa."+prefix+".q.key"));
 		g = new BigInteger(fh.readLine("dsa."+prefix+".g.key"));
@@ -106,68 +101,41 @@ public class DSA {
 		return true;
 	}
 	
-	public String sign2(String message) {
-	    ////////// generate k
-		BigInteger k;
-	    do {
-	    	k = new BigInteger(q.bitCount(), new Random());
-        } 
-	    while (x.compareTo(zero) == -1 || x.compareTo(g) == 1);
-	    System.out.println("k: "+k);
-	    
-	    //////////generate r
-		BigInteger r = g.modPow(k, p).mod(q);
-		//todo: if r == 0 calc k again
-		System.out.println("r: "+r);
-		
-		//////////generate s
-		// todo use internal hash function
-		BigInteger s;
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			md.update(message.getBytes());
-	        BigInteger hash = new BigInteger(md.digest());
-	        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
-		}
-		catch (NoSuchAlgorithmException ex) {
-	        System.out.println("error");
-	        s = one;
-	    }
-		// todo check if s = 0 calc k again
-		       		
-        System.out.println("s: "+s);
-        return null;
-	}
-	
-	public BigInteger sign(String message) {
+	public void sign(String message) {
 		byte[] data = message.getBytes();
-	    ////////// generate k
-		BigInteger k;
-	    do {
-	    	k = new BigInteger(q.bitCount(), new Random());
-        } 
-	    while (k.compareTo(zero) == -1 || k.compareTo(g) == 1);
-	    System.out.println("k: "+k);
-	    
-	    //////////generate r
-		BigInteger r = g.modPow(k, p).mod(q);
-		//todo: if r == 0 calc k again
-		System.out.println("r: "+r);
-	    
-	    
-	    ///
-	    MessageDigest md;
-	    BigInteger s = BigInteger.ONE;
-	    try {
-	        md = MessageDigest.getInstance("SHA-1");
-	        md.update(data);
-	        BigInteger hash = new BigInteger(md.digest());
-	        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
-	    } catch (NoSuchAlgorithmException ex) {
-	    	System.out.println("error");
-	    }
+		BigInteger k, r, s;
+		
+		do {
+			do {
+			    // Generate a random per-message value k where 0 < k < q
+			    do {
+			    	k = new BigInteger(q.bitCount(), lib.getRandom());
+		        }
+			    while (k.compareTo(zero) == 0);
+			    System.out.println("k: "+k);
+			    
+			    // Calculate r = (g^k mod p) mod q
+			    // in the unlikely case that r=0, start again with a different random k
+				r = g.modPow(k, p).mod(q);
+			}
+			while (r.compareTo(zero) == 0);
+			System.out.println("r: "+r);
+			
+			// Calculate s = k^-1 (H(m) + xr) mod q
+		    MessageDigest md;
+		    try {
+		        md = MessageDigest.getInstance("SHA-12");
+		        md.update(data);
+		        BigInteger hash = new BigInteger(md.digest());
+		        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
+		    } catch (NoSuchAlgorithmException e) {
+		    	System.out.println(e.getMessage());
+		    	System.exit(1);
+		    	s = zero;
+		    }
+		}
+		while (s.compareTo(zero) == 0);
 	    System.out.println("s: "+s);
-	    return s;
 	}
 
 	public boolean verify(String r2, String s2, String message) {

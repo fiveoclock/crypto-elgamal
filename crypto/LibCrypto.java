@@ -5,15 +5,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public class LibCrypto {
 
-    private String example;
-    private int ex1;
+    private Random rnd;
 
     public LibCrypto() {
+    	rnd = new Random(System.currentTimeMillis());
     }
 
     public byte[] hash(String func, String s) {
@@ -33,8 +32,11 @@ public class LibCrypto {
     	return (new HexBinaryAdapter()).marshal(hash);
     }
     
+    public Random getRandom() {
+    	return rnd;
+    }
+    
     public BigInteger generatePrime(int length) {
-    	Random rnd = new Random(System.currentTimeMillis());
         BigInteger prime = BigInteger.probablePrime(length, rnd);
         return prime;
     }
@@ -46,7 +48,5 @@ public class LibCrypto {
     public int randNegInt(int length) {
     	return randInt(length) - length/2;
     }
-    
-    
     
 }

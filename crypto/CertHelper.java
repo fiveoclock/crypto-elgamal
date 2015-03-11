@@ -14,7 +14,6 @@ import java.security.cert.X509Certificate;
 
 public class CertHelper {
 	
-	
 	public String getCertInfo(Certificate cert) {
 		X509Certificate x = (X509Certificate) cert;
 		
@@ -38,7 +37,7 @@ public class CertHelper {
 			cert.verify(ca.getPublicKey());
 		} 
 		catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
-			System.out.println("Error when trying to verify the certificate: "+e.getCause());
+			System.out.println("Error when trying to verify the certificate: "+e.getMessage());
 			return false;
 		} 
 		return true;
@@ -57,7 +56,7 @@ public class CertHelper {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename);
+			System.out.println("Error reading file: "+filename +" - "+e.getMessage());
 		} catch (CertificateException e) {
 			System.out.println("Error when trying to interpret the certificate: "+filename);
 		}
