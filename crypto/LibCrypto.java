@@ -8,6 +8,11 @@ import java.util.Random;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public class LibCrypto {
+	private static BigInteger zero = BigInteger.ZERO;
+	private static BigInteger one = BigInteger.ONE;
+	private static BigInteger two = BigInteger.valueOf(2);
+	private static BigInteger three = BigInteger.valueOf(3);
+
 
     private Random rnd;
 
@@ -50,7 +55,10 @@ public class LibCrypto {
     }
     
     public BigInteger getBI(String s) {
-    	return new BigInteger(s.getBytes());
+    	return new BigInteger(s);
+    }
+    public BigInteger getBI(String s, int base) {
+    	return new BigInteger(s, base);
     }
     public BigInteger getBI(int i) {
     	return BigInteger.valueOf(i);

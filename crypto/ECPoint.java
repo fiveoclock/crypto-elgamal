@@ -26,5 +26,13 @@ public class ECPoint {
 	public void setY(BigInteger y) {
 		this.y = y;
 	}
-
+	
+	public String toString() {
+		return "x: " + x + 
+			 "\ny: " + y;
+	}
+	public String toString(int base) {
+		return "x: " + x.toString(base) + 
+			 "\ny: " + y.toString(base);
+	}
 }

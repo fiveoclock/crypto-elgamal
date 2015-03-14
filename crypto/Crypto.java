@@ -1,5 +1,7 @@
 package crypto;
 
+import java.math.BigInteger;
+
 public class Crypto {
 	private LibCrypto lib;
 	private RSA rsa;
@@ -39,8 +41,8 @@ public class Crypto {
 					printUsage("Not enough parameters");
 				break;
 			case "ecc":
-				if (aNum > 2)
-					c.eccTest(args[1], args[2]);
+				if (aNum > 1)
+					c.eccTest(args[1]);
 				else
 					printUsage("Not enough parameters");
 				break;
@@ -145,9 +147,31 @@ public class Crypto {
 		System.out.println(lib.getHexHash(func, text));
 	}
 	
-	private void eccTest(String a, String b) {
+	private void eccTest(String ks) {
 		ECC ecc = new ECC(lib.getBI(-9), lib.getBI(12), lib.getBI(13));
-		ecc.test();
+		//ecc.test();
+		
+		// new
+		BigInteger a = lib.getBI(-3);
+		BigInteger b = lib.getBI("64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 16);
+		BigInteger p = lib.getBI("6277101735386680763835789423207666416083908700390324961279");
+		ecc = new ECC(a, b, p);
+		System.out.println("a: "+ a);
+		System.out.println("b: "+ b);
+		System.out.println("p: "+ p + "\n");
+		
+		
+		BigInteger Gx = new BigInteger("188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", 16);
+		BigInteger Gy = new BigInteger("07192b95ffc8da78631011ed6b24cdd573f977a11e794811", 16);
+		ECPoint G = new ECPoint(Gx, Gy);
+		
+		System.out.println("G: \n" + G.toString(16) + "\n");
+		
+		BigInteger k = lib.getBI(ks);
+		System.out.println("k: "+ k);
+		
+		ECPoint R = ecc.scalarMultiplication(G, k);
+		System.out.println(R.toString(16));
 	}
 	
 	private void certRead(String filename) {
