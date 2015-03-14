@@ -80,11 +80,13 @@ public class Crypto {
 	}
 	private void rsaEncrypt(String prefix, String message) {
 		rsa.loadKeys(prefix);
-		rsa.encrypt(message);
+		String c = rsa.encrypt(message);
+		System.out.println("Encrypted message (c): "+ c);
 	}
 	private void rsaDecrypt(String prefix, String cipher) {
 		rsa.loadKeys(prefix);
-		rsa.decrypt(cipher);
+		String m = rsa.decrypt(cipher);
+		System.out.println("Decrypted message (m'): "+ m);
 	}
 
 	// DSA

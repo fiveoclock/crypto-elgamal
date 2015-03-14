@@ -8,14 +8,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class FileHelper {
+	private LibCrypto lib;
 	
+	public FileHelper() {
+		lib = new LibCrypto();
+	}
+		
 	public void writeBytes(String filename, byte[] data) {
 		try {
 			FileOutputStream out = new FileOutputStream(filename);
 			out.write(data);
 			out.close();
 		} catch (IOException e) {
-			System.out.println("Error writing file: "+filename+" - "+e.getMessage());
+			lib.error("Error writing file: "+filename+" - exiting", e);
 		}
 	}
 	
@@ -26,8 +31,7 @@ public class FileHelper {
 			return bis;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename+" - exiting"+" - "+e.getMessage());
-			System.exit(1);
+			lib.error("Error opening file: "+filename+" - exiting", e);
 			return null;
 		}
 	}
@@ -45,8 +49,7 @@ public class FileHelper {
 			return file;
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename+" - exiting"+" - "+e.getMessage());
-			System.exit(1);
+			lib.error("Error reading file: "+filename+" - exiting", e);
 			return null;
 		}
 	}

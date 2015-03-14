@@ -62,4 +62,18 @@ public class LibCrypto {
     public BigInteger getBI(int i) {
     	return BigInteger.valueOf(i);
     }
+    
+	// general methods
+    public void error(String message, Exception e) {
+		System.out.println(message + " - " + e.getMessage());
+		System.exit(1);
+	}
+    public void error(Exception e) {
+		System.out.println("Error"+" - "+e.getMessage());
+		System.exit(1);
+	}
+	public void error(String message) {
+		System.out.println("Error: " + message);
+		System.exit(1);
+	}
 }

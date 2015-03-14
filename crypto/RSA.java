@@ -67,23 +67,27 @@ public class RSA {
 	}
 	
 	public String encrypt(String message) {
-		int maxLength = n.bitLength(); // split if message is greater than n
 		BigInteger m = new BigInteger(message.getBytes());
+		if (m.compareTo(n) != -1) {
+			lib.error("Message is too long; split into smaler chunks");
+		}
+		
 		System.out.println("m: " + m);
 		BigInteger c = m.modPow(e, n);
 		System.out.println("c: " + c.mod(n));
 		
 		BigInteger dec = c.modPow(d, n);
-		System.out.println("m': " + new String(dec.toByteArray()));
-		return null;
+		return new String(dec.toByteArray());
 	}
 
 	public String decrypt(String cipher) {
-		int maxLength = n.bitLength();
 		BigInteger c = new BigInteger(cipher);
+		if (c.compareTo(n) != -1) {
+			lib.error("Message is too long; split into smaler chunks");
+		}
+		
 		BigInteger m = c.modPow(d, n);
-		System.out.println("m: " + new String(m.toByteArray()));
-		return null;
+		return new String(m.toByteArray());
 	}
 	
 }

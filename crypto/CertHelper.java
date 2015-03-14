@@ -13,6 +13,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 public class CertHelper {
+	private LibCrypto lib = new LibCrypto();
 	
 	public String getCertInfo(Certificate cert) {
 		X509Certificate x = (X509Certificate) cert;
@@ -30,14 +31,14 @@ public class CertHelper {
 	
 	public boolean verifyCert(Certificate ca, Certificate cert) {
 		if (ca == null || cert == null) {
-			System.out.println("One of the certificates is null.");
+			lib.error("One of the certificates is null.");
 			return false;
 		}
 		try {
 			cert.verify(ca.getPublicKey());
 		} 
 		catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
-			System.out.println("Error when trying to verify the certificate: "+e.getMessage());
+			lib.error("Error when trying to verify the certificate: "+e.getMessage(), e);
 			return false;
 		} 
 		return true;
@@ -56,9 +57,9 @@ public class CertHelper {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error reading file: "+filename +" - "+e.getMessage());
+			lib.error("Error reading the certificate: "+filename+" - exiting", e);
 		} catch (CertificateException e) {
-			System.out.println("Error when trying to interpret the certificate: "+filename);
+			lib.error("Error when trying to interpret the certificate: "+filename, e);
 		}
 		return cert;
 	}
