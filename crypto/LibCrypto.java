@@ -7,6 +7,10 @@ import java.util.Random;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
+/**
+ * @author alex
+ * Provides some functions that can be used by the other classes
+ */
 public class LibCrypto {
 	public static BigInteger zero = BigInteger.ZERO;
 	public static BigInteger one = BigInteger.ONE;
@@ -19,6 +23,13 @@ public class LibCrypto {
     	rnd = new Random(System.currentTimeMillis());
     }
 
+    /**
+     * @param func
+     * @param s
+     * @return
+     * Hashes the given string using the hash function specified by func and returns the hash as byte array;
+     * See Java documentation for the selection of available hash functions
+     */
     public byte[] hash(String func, String s) {
     	byte[] hash = null;
     	MessageDigest messageDigest;
@@ -31,49 +42,77 @@ public class LibCrypto {
 		}
 		return hash;
     }
+    
+    /**
+     * @param func
+     * @param s
+     * @return
+     * Hashes a message and returns it as hexadecimal hash string
+     */
     public String getHexHash(String func, String s) {
     	byte[] hash = hash(func, s);
     	return (new HexBinaryAdapter()).marshal(hash);
     }
     
+    /**
+     * @return
+     * Returns an instance of Random(); centralized for better randomness
+     */
     public Random getRandom() {
     	return rnd;
     }
     
+    /**
+     * @param length
+     * @return
+     * Returns a random positive int of the desired length
+     */
+    public int randInt(int length) {
+    	return (int) (Math.random() * length);
+    }
+    
+    /**
+     * @param length
+     * @return
+     * Returns a random int that can be negative of the desired length
+     */
+    public int randNegInt(int length) {
+    	return randInt(length) - length/2;
+    }
+    
+    /**
+     * @param length
+     * @return
+     * Returns a prime with the desired length as BitInteger 
+     */
     public BigInteger generatePrime(int length) {
         BigInteger prime = BigInteger.probablePrime(length, rnd);
         return prime;
     }
     
-    public int randInt(int length) {
-    	return (int) (Math.random() * length);
-    }
-    
-    public int randNegInt(int length) {
-    	return randInt(length) - length/2;
-    }
-    
-    public BigInteger getBI(String s) {
-    	return new BigInteger(s);
-    }
-    public BigInteger getBI(String s, int base) {
-    	return new BigInteger(s, base);
-    }
-    public BigInteger getBI(int i) {
-    	return BigInteger.valueOf(i);
-    }
-    
-	// general methods
-    public void error(String message, Exception e) {
-		System.out.println(message + " - " + e.getMessage());
+    /**
+     * @param msg
+     * @param e
+     * Prints a message specified by msg and the exception message to console and then exits 
+     */
+    public void error(String msg, Exception e) {
+		System.out.println(msg + " - " + e.getMessage());
 		System.exit(1);
 	}
+    /**
+     * @param e
+     * Prints the exception message to console and then exits
+     */
     public void error(Exception e) {
 		System.out.println("Error"+" - "+e.getMessage());
 		System.exit(1);
 	}
-	public void error(String message) {
-		System.out.println("Error: " + message);
+	/**
+	 * @param msg
+	 * Prints a message specified by msg to console and then exits
+	 */
+	public void error(String msg) {
+		System.out.println("Error: " + msg);
 		System.exit(1);
 	}
 }

@@ -12,9 +12,18 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+/**
+ * @author alex
+ * Helps dealing with X.509 certificates
+ */
 public class CertHelper {
 	private LibCrypto lib = new LibCrypto();
 	
+	/**
+	 * @param cert
+	 * @return
+	 * Returns relavant certificate information about the given certificate as a String
+	 */
 	public String getCertInfo(Certificate cert) {
 		X509Certificate x = (X509Certificate) cert;
 		
@@ -29,9 +38,15 @@ public class CertHelper {
 	    return ret;
 	}
 	
+	/**
+	 * @param ca
+	 * @param cert
+	 * @return
+	 * Verifies if the certificate is derived from given CA certificate
+	 */
 	public boolean verifyCert(Certificate ca, Certificate cert) {
 		if (ca == null || cert == null) {
-			lib.error("One of the certificates is null.");
+			lib.error("One of the certificates is null");
 			return false;
 		}
 		try {
@@ -44,6 +59,11 @@ public class CertHelper {
 		return true;
 	}
 	
+	/**
+	 * @param filename
+	 * @return
+	 * Reads a certificate from a file and returns it
+	 */
 	public Certificate readCert(String filename) {
 		Certificate cert = null;
 		try {

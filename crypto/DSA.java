@@ -4,6 +4,10 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author alex
+ * Provides DSA key generation and handling, signing and verfification
+ */
 public class DSA {
 	private static BigInteger zero = BigInteger.ZERO;
 	private static BigInteger one = BigInteger.ONE;
@@ -20,6 +24,9 @@ public class DSA {
 		fh = new FileHelper();
 	}
 	
+	/**
+	 * Generates the DSA keys in order to be able to sign and verify messages later
+	 */
 	public void generateKeys() {
 		// p and q Length pairs: (1024,160), (2048,224), (2048,256), and (3072,256).
 		// q must be a prime; choosing 160 Bit for q
@@ -60,6 +67,14 @@ public class DSA {
         System.out.println("Private key (x): " + x);
 	}
 	
+	/**
+	 * @param q
+	 * @return
+	 * Helper function that calculates a p that fits to q;
+	 *   p must be a prime of the length (L): 512 < L < 1024 where L must be a multiple of 64;
+	 *   also q must be a divider of (p-1);
+	 *   A lot of loops are needed until p is found
+	 */
 	private BigInteger calculateP(BigInteger q) {
 		// p must be a prime of the length (L): 512 < L < 1024 where L must be a multiple of 64
 		// also q must be a divider of (p-1)
@@ -77,6 +92,11 @@ public class DSA {
 	    return pTest;
 	}
 
+	/**
+	 * @param prefix
+	 * @return
+	 * Saves the keys for later use
+	 */
 	public boolean saveKeys(String prefix) {
 		fh.writeBytes("dsa."+prefix+".p.key", p.toString().getBytes());
 		fh.writeBytes("dsa."+prefix+".q.key", q.toString().getBytes());
@@ -86,6 +106,11 @@ public class DSA {
 		return true;
 	}
 	
+	/**
+	 * @param prefix
+	 * @return
+	 * Loads the previously saved keys
+	 */
 	public boolean loadKeys(String prefix) {
 		p = new BigInteger(fh.readLine("dsa."+prefix+".p.key"));
 		q = new BigInteger(fh.readLine("dsa."+prefix+".q.key"));
@@ -101,8 +126,12 @@ public class DSA {
 		return true;
 	}
 	
-	public void sign(String message) {
-		byte[] data = message.getBytes();
+	/**
+	 * @param msg
+	 * Creates the signature (r,s) of the message specified by msg
+	 */
+	public void sign(String msg) {
+		byte[] data = msg.getBytes();
 		BigInteger k, r, s;
 		
 		do {
@@ -137,7 +166,14 @@ public class DSA {
 	    System.out.println("s: "+s);
 	}
 
-	public boolean verify(String r2, String s2, String message) {
+	/**
+	 * @param r
+	 * @param s
+	 * @param msg
+	 * @return
+	 * Verifies if the signature (r, s) fits to the message specified by msg
+	 */
+	public boolean verify(String r2, String s2, String msg) {
 		BigInteger r = new BigInteger(r2);
 		BigInteger s = new BigInteger(s2);
 		
@@ -151,7 +187,7 @@ public class DSA {
 	    BigInteger v = BigInteger.ZERO;
 	    try {
 	        md = MessageDigest.getInstance("SHA-1");
-	        md.update(message.getBytes());
+	        md.update(msg.getBytes());
 	        BigInteger hash = new BigInteger(md.digest());
 	        BigInteger w = s.modInverse(q);
 	        BigInteger u1 = hash.multiply(w).mod(q);

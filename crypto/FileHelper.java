@@ -7,6 +7,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * @author alex
+ * Implements some file handling functions so that they can be shared among different classes
+ */
 public class FileHelper {
 	private LibCrypto lib;
 	
@@ -14,6 +18,11 @@ public class FileHelper {
 		lib = new LibCrypto();
 	}
 		
+	/**
+	 * @param filename
+	 * @param data
+	 * Writes the contents specified by data into a file specified by filename 
+	 */
 	public void writeBytes(String filename, byte[] data) {
 		try {
 			FileOutputStream out = new FileOutputStream(filename);
@@ -24,6 +33,11 @@ public class FileHelper {
 		}
 	}
 	
+	/**
+	 * @param filename
+	 * @return
+	 * Opens a file and returns the BufferedInputStream
+	 */
 	public BufferedInputStream openFile(String filename) {
 		try {
 			FileInputStream fis = new FileInputStream(filename);
@@ -36,6 +50,11 @@ public class FileHelper {
 		}
 	}
 
+	/**
+	 * @param filename
+	 * @return
+	 * Reads the first line of the specified file
+	 */
 	public String readLine(String filename) {
 		try {
 			FileInputStream fis = new FileInputStream(filename);

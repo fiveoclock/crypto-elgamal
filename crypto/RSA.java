@@ -2,6 +2,10 @@ package crypto;
 
 import java.math.BigInteger;
 
+/**
+ * @author alex
+ * Provides RSA key generation and handling, encryption and decryption 
+ */
 public class RSA {
 	private static BigInteger one = BigInteger.ONE;
 	

@@ -128,9 +128,9 @@ public class Crypto {
 		if (curve.equalsIgnoreCase("p192")) {
 			// set domain parameters for curve p192 as specifed by:
 			// http://csrc.nist.gov/groups/ST/toolkit/documents/dss/NISTReCur.pdf
-			a = lib.getBI(-3);
-			b = lib.getBI("64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 16);
-			p = lib.getBI("6277101735386680763835789423207666416083908700390324961279");
+			a = BigInteger.valueOf(-3);
+			b = new BigInteger("64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 16);
+			p = new BigInteger("6277101735386680763835789423207666416083908700390324961279");
 			ecc = new ECC(a, b, p);
 			
 			BigInteger Gx = new BigInteger("188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", 16);
@@ -140,7 +140,7 @@ public class Crypto {
 		else {
 			printUsage("Unsupported curve: " + curve);
 		}
-		BigInteger k = lib.getBI(ks);
+		BigInteger k = new BigInteger(ks);
 		
 		System.out.println("Domain parameters: \n" + ecc.toString());
 		System.out.println("G: \n" + G.toString(16) );
