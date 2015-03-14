@@ -14,6 +14,10 @@ public class RSA {
 		lib = new LibCrypto();
 	}
 	
+	/**
+	 * @param length
+	 * Generates random keys for en- and decryption
+	 */
 	public void generateKeys(int length) {
 		System.out.print("Calculating p, ");
 		p = lib.generatePrime(length);
@@ -47,6 +51,11 @@ public class RSA {
 		System.out.println("test: " + test.mod(nPhi));
 	}
 	
+	/**
+	 * @param prefix
+	 * @return
+	 * Saves the generated keys into separate files so they can be loaded again
+	 */
 	public boolean saveKeys(String prefix) {
 		fh = new FileHelper();
 		fh.writeBytes("rsa."+prefix+".e.key", e.toString().getBytes());
@@ -55,6 +64,11 @@ public class RSA {
 		return true;
 	}
 	
+	/**
+	 * @param prefix
+	 * @return
+	 * Loads the keys from the files specified by prefix
+	 */
 	public boolean loadKeys(String prefix) {
 		fh = new FileHelper();
 		e = new BigInteger(fh.readLine("rsa."+prefix+".e.key"));
@@ -66,20 +80,26 @@ public class RSA {
 		return true;
 	}
 	
-	public String encrypt(String message) {
-		BigInteger m = new BigInteger(message.getBytes());
+	/**
+	 * @param msg
+	 * @return
+	 * Encrypts the message specified by msg into a ciphertext
+	 */
+	public String encrypt(String msg) {
+		BigInteger m = new BigInteger(msg.getBytes());
 		if (m.compareTo(n) != -1) {
 			lib.error("Message is too long; split into smaler chunks");
 		}
 		
-		System.out.println("m: " + m);
 		BigInteger c = m.modPow(e, n);
-		System.out.println("c: " + c.mod(n));
-		
-		BigInteger dec = c.modPow(d, n);
-		return new String(dec.toByteArray());
+		return c.toString();
 	}
 
+	/**
+	 * @param cipher
+	 * @return
+	 * Decrypts the ciphertext specifeid by cipher into cleartext
+	 */
 	public String decrypt(String cipher) {
 		BigInteger c = new BigInteger(cipher);
 		if (c.compareTo(n) != -1) {

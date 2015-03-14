@@ -8,8 +8,7 @@ public class ECC {
 	private static BigInteger zero = BigInteger.ZERO;
 	private static BigInteger two = BigInteger.valueOf(2);
 	
-	// Domain Parameters
-	private BigInteger a, b, p;
+	private BigInteger a, b, p; // Domain Parameters
 	
 	public ECC() {
 		lib = new LibCrypto();
@@ -72,7 +71,6 @@ public class ECC {
 	public ECPoint scalarMultiplication(ECPoint P, BigInteger k) {
 		ECPoint R = new ECPoint(zero, zero);
 		
-		
 		// Double and add algorithm
 		for (int i = 0; i < k.bitLength(); i++) {
 			if (k.testBit(i) == true) {
@@ -82,6 +80,4 @@ public class ECC {
 		}
 		return R;
 	}
-	
-	
 }

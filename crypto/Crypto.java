@@ -81,12 +81,14 @@ public class Crypto {
 	private void rsaEncrypt(String prefix, String message) {
 		rsa.loadKeys(prefix);
 		String c = rsa.encrypt(message);
-		System.out.println("Encrypted message (c): "+ c);
+		System.out.println("Ciphertext (c): " + c);
+		
+		System.out.println("\nTesting decryption (m'): " + rsa.decrypt(c));
 	}
 	private void rsaDecrypt(String prefix, String cipher) {
 		rsa.loadKeys(prefix);
 		String m = rsa.decrypt(cipher);
-		System.out.println("Decrypted message (m'): "+ m);
+		System.out.println("Decrypted message (m'): " + m);
 	}
 
 	// DSA
