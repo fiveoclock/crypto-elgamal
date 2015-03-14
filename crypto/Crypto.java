@@ -35,80 +35,31 @@ public class Crypto {
 		argsNum = args.length;
 		c.checkArgs(1);
 		switch(args[0]) {
-		case "hash":
-			c.checkArgs(3);
-			c.hash(args[1], args[2]);
-			break;
-		case "ecc":
-			c.checkArgs(2);
-			c.eccTest(args[1]);
-			break;
-		case "cert":
-			c.checkArgs(2);
-			switch(args[1]) {
-			case "read":
-				c.checkArgs(3);
-				c.certRead(args[2]);
-				break;
-			case "verify":
-				c.checkArgs(4);
-				c.verifyCert(args[2], args[3]);
-				break;
-			}
-			break;
-		case "network":
-			c.checkArgs(2);
-			switch(args[1]) {
-			case "server":
-				c.checkArgs(3);
-				c.startServer(args[2]);
-				break;
-			case "client":
-				c.checkArgs(4);
-				c.startClient(args[2], args[3]);
-				break;
-			}
-			break;
-		case "rsa":
-			c.checkArgs(2);
-			switch(args[1]) {
-			case "generate-keys":
-				c.checkArgs(3);
-				c.rsaGenerateKeys(args[2]);
-				break;
-			case "encrypt":
-				c.checkArgs(4);
-				c.rsaEncrypt(args[2], args[3]);
-				break;
-			case "decrypt":
-				c.checkArgs(4);
-				c.rsaDecrypt(args[2], args[3]);
-				break;
-			default:
-				printUsage("Unknown command");
-				}
-			break;
-		case "dsa":
-		c.checkArgs(2);
-			switch(args[1]) {
-			case "generate-keys":
-				c.checkArgs(3);
-				c.dsaGenerateKeys(args[2]);
-				break;
-			case "sign":
-				c.checkArgs(4);
-				c.dsaSign(args[2], args[3]);
-				break;
-			case "verify":
-				c.checkArgs(5);
-				c.dsaVerify(args[2], args[3], args[4], args[5]);
-				break;
-			default:
-				printUsage("Unknown command");
-				}
-			break;
-		default:
-			printUsage("Unknown command");
+		case "hash": 		c.checkArgs(3); c.hash(args[1], args[2]); break;
+		case "ecc": 		c.checkArgs(2); c.eccTest(args[1]); break;
+		case "cert": 		c.checkArgs(2); switch(args[1]) {
+			case "read": 			c.checkArgs(3); c.certRead(args[2]); break;
+			case "verify": 			c.checkArgs(4); c.verifyCert(args[2], args[3]); break;
+			default: 				printUsage("Unknown command");
+			} break;
+		case "network":		c.checkArgs(2); switch(args[1]) {
+			case "server":			c.checkArgs(3);	c.startServer(args[2]); break;
+			case "client":			c.checkArgs(4);	c.startClient(args[2], args[3]); break;
+			default: 				printUsage("Unknown command");
+			} break;
+		case "rsa": 		c.checkArgs(2); switch(args[1]) {
+			case "generate-keys": 	c.checkArgs(3);	c.rsaGenerateKeys(args[2]);	break;
+			case "encrypt":			c.checkArgs(4);	c.rsaEncrypt(args[2], args[3]); break;
+			case "decrypt": 		c.checkArgs(4); c.rsaDecrypt(args[2], args[3]); break;
+			default: 				printUsage("Unknown command");
+			} break;
+		case "dsa": 		c.checkArgs(2); switch(args[1]) {
+			case "generate-keys": 	c.checkArgs(3); c.dsaGenerateKeys(args[2]); break;
+			case "sign": 			c.checkArgs(4); c.dsaSign(args[2], args[3]); break;
+			case "verify": 			c.checkArgs(5);	c.dsaVerify(args[2], args[3], args[4], args[5]); break;
+			default:				printUsage("Unknown command");
+			} break;
+		default: 					printUsage("Unknown command");
 		}
 	}
 	
