@@ -8,6 +8,7 @@ public class Crypto {
 	private DSA dsa;
 	private CertHelper certH;
 	private NetHelper net;
+	private static int argsNum;
 
     public Crypto() {
 		lib = new LibCrypto();
@@ -31,115 +32,90 @@ public class Crypto {
 		      }
 	    }
 		
-		int aNum = args.length;
-		if (aNum > 0) {
-			switch(args[0]) {
-			case "hash":
-				if (aNum > 2)
-					c.hash(args[1], args[2]);
-				else
-					printUsage("Not enough parameters");
+		argsNum = args.length;
+		c.checkArgs(1);
+		switch(args[0]) {
+		case "hash":
+			c.checkArgs(3);
+			c.hash(args[1], args[2]);
+			break;
+		case "ecc":
+			c.checkArgs(2);
+			c.eccTest(args[1]);
+			break;
+		case "cert":
+			c.checkArgs(2);
+			switch(args[1]) {
+			case "read":
+				c.checkArgs(3);
+				c.certRead(args[2]);
 				break;
-			case "ecc":
-				if (aNum > 1)
-					c.eccTest(args[1]);
-				else
-					printUsage("Not enough parameters");
+			case "verify":
+				c.checkArgs(4);
+				c.verifyCert(args[2], args[3]);
 				break;
-			case "cert":
-				if (aNum > 1) {
-					switch(args[1]) {
-					case "read":
-						if (aNum > 2)
-							c.certRead(args[2]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "verify":
-						if (aNum > 3)
-							c.verifyCert(args[2], args[3]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					}
-					break;
-				}
-			case "network":
-				if (aNum > 1) {
-					switch(args[1]) {
-					case "server":
-						if (aNum > 2)
-							c.startServer(args[2]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "client":
-						if (aNum > 3)
-							c.startClient(args[2], args[3]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					}
-					break;
-				}
-			case "rsa":
-				if (aNum > 1) {
-					switch(args[1]) {
-					case "generate-keys":
-						if (aNum > 2)
-							c.rsaGenerateKeys(args[2]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "encrypt":
-						if (aNum > 3)
-							c.rsaEncrypt(args[2], args[3]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "decrypt":
-						if (aNum > 3)
-							c.rsaDecrypt(args[2], args[3]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					default:
-						printUsage("Unknown command");
-						}
-					break;
-				}
-			case "dsa":
-				if (aNum > 1) {
-					switch(args[1]) {
-					case "generate-keys":
-						if (aNum > 2)
-							c.dsaGenerateKeys(args[2]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "sign":
-						if (aNum > 3)
-							c.dsaSign(args[2], args[3]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					case "verify":
-						if (aNum > 5)
-							c.dsaVerify(args[2], args[3], args[4], args[5]);
-						else
-							printUsage("Not enough parameters");
-						break;
-					default:
-						printUsage("Unknown command");
-						}
-					break;
-				}
+			}
+			break;
+		case "network":
+			c.checkArgs(2);
+			switch(args[1]) {
+			case "server":
+				c.checkArgs(3);
+				c.startServer(args[2]);
+				break;
+			case "client":
+				c.checkArgs(4);
+				c.startClient(args[2], args[3]);
+				break;
+			}
+			break;
+		case "rsa":
+			c.checkArgs(2);
+			switch(args[1]) {
+			case "generate-keys":
+				c.checkArgs(3);
+				c.rsaGenerateKeys(args[2]);
+				break;
+			case "encrypt":
+				c.checkArgs(4);
+				c.rsaEncrypt(args[2], args[3]);
+				break;
+			case "decrypt":
+				c.checkArgs(4);
+				c.rsaDecrypt(args[2], args[3]);
+				break;
 			default:
 				printUsage("Unknown command");
-			}
+				}
+			break;
+		case "dsa":
+		c.checkArgs(2);
+			switch(args[1]) {
+			case "generate-keys":
+				c.checkArgs(3);
+				c.dsaGenerateKeys(args[2]);
+				break;
+			case "sign":
+				c.checkArgs(4);
+				c.dsaSign(args[2], args[3]);
+				break;
+			case "verify":
+				c.checkArgs(5);
+				c.dsaVerify(args[2], args[3], args[4], args[5]);
+				break;
+			default:
+				printUsage("Unknown command");
+				}
+			break;
+		default:
+			printUsage("Unknown command");
 		}
-		else {
-			printUsage();
+	}
+	
+	private void checkArgs(int required) {
+		if (argsNum < required) {
+			printUsage("Not enough parameters");
+			System.exit(1);
 		}
 	}
 	
