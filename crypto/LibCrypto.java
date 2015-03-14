@@ -49,4 +49,10 @@ public class LibCrypto {
     	return randInt(length) - length/2;
     }
     
+    public BigInteger getBI(String s) {
+    	return new BigInteger(s.getBytes());
+    }
+    public BigInteger getBI(int i) {
+    	return BigInteger.valueOf(i);
+    }
 }

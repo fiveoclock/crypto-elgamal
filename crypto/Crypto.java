@@ -38,6 +38,12 @@ public class Crypto {
 				else
 					printUsage("Not enough parameters");
 				break;
+			case "ecc":
+				if (aNum > 2)
+					c.eccTest(args[1], args[2]);
+				else
+					printUsage("Not enough parameters");
+				break;
 			case "cert":
 				if (aNum > 1) {
 					switch(args[1]) {
@@ -137,6 +143,11 @@ public class Crypto {
 	
 	private void hash(String func, String text) {
 		System.out.println(lib.getHexHash(func, text));
+	}
+	
+	private void eccTest(String a, String b) {
+		ECC ecc = new ECC(lib.getBI(-9), lib.getBI(12), lib.getBI(13));
+		ecc.test();
 	}
 	
 	private void certRead(String filename) {
