@@ -6,6 +6,9 @@ public class ECPoint {
 	private BigInteger x;
 	private BigInteger y;
 	
+	public ECPoint() {
+	}
+	
 	public ECPoint(BigInteger x, BigInteger y) {
 		this.setX(x);
 		this.setY(y);
@@ -32,7 +35,7 @@ public class ECPoint {
 			 "\ny: " + y;
 	}
 	public String toString(int base) {
-		return "x: " + x.toString(base) + 
-			 "\ny: " + y.toString(base);
+		return " x: " + x.toString(base) + 
+			 "\n y: " + y.toString(base);
 	}
 }

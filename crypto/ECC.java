@@ -11,6 +11,10 @@ public class ECC {
 	// Domain Parameters
 	private BigInteger a, b, p;
 	
+	public ECC() {
+		lib = new LibCrypto();
+	}
+	
 	public ECC(BigInteger a, BigInteger b, BigInteger p) {
 		lib = new LibCrypto();
 		this.a = a;
@@ -18,13 +22,11 @@ public class ECC {
 		this.p = p;
 	}
 	
-	public void test() {
-		ECPoint p = new ECPoint(BigInteger.valueOf(5), BigInteger.valueOf(1));
-		ECPoint q = new ECPoint(BigInteger.valueOf(9), BigInteger.valueOf(6));
-
-		ECPoint R = pAdd(p,q);
-		System.out.println("Rx: " +R.getX());
-		System.out.println("Ry: " +R.getY());
+	public String toString() {
+		String d = " a: " + a +
+				"\n b: " + b +
+				"\n p: " + p;
+		return d;
 	}
 	
 	public ECPoint pAdd(ECPoint P, ECPoint Q) {
@@ -38,9 +40,7 @@ public class ECC {
 		BigInteger x2_x1 = Q.getX().subtract(P.getX());
 		
 		// Division entspricht einer Multiplikation mit dem Inversen
-		BigInteger k = x2_x1.modInverse(p).multiply(y2_y1); // 1
-		
-		//System.out.println("y2-y1: " +y2_y1 + "\ny2-y1: " +x2_x1 + "\nk: " +k);
+		BigInteger k = x2_x1.modInverse(p).multiply(y2_y1);
 		
 		// Berechnung von R (Rx und Ry)
 		// Rx = k² -xp -xq mod p
@@ -71,7 +71,7 @@ public class ECC {
 	
 	public ECPoint scalarMultiplication(ECPoint P, BigInteger k) {
 		ECPoint R = new ECPoint(zero, zero);
-		System.out.println("K (bits): " + k.toString(2));
+		
 		
 		// Double and add algorithm
 		for (int i = 0; i < k.bitLength(); i++) {

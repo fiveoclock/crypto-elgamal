@@ -18,89 +18,48 @@ public class Crypto {
 	}
 
 	public static void main(String[] args) {
-		// make an instance
 		Crypto c = new Crypto();
-		
-		for(String arg:args) {
-			switch(arg) {
-				case "hello":
-					System.out.println("hello switch string");
-					break;
-				case "-verbose":
-					System.out.println("verbose mode activated");
-					break;
-		      }
-	    }
-		
 		argsNum = args.length;
 		c.checkArgs(1);
+		
 		switch(args[0]) {
-		case "hash": 		c.checkArgs(3); c.hash(args[1], args[2]); break;
-		case "ecc": 		c.checkArgs(2); c.eccTest(args[1]); break;
-		case "cert": 		c.checkArgs(2); switch(args[1]) {
+		case "hash": 			c.checkArgs(3); c.hash(args[1], args[2]); break;
+		case "ecc": 			c.checkArgs(2); switch(args[1]) {
+			case "p192":			c.checkArgs(2); c.eccTest(args[1], args[2]); break;
+			default: 				printUsage("Unknown command");
+		} break;
+		case "cert": 			c.checkArgs(2); switch(args[1]) {
 			case "read": 			c.checkArgs(3); c.certRead(args[2]); break;
 			case "verify": 			c.checkArgs(4); c.verifyCert(args[2], args[3]); break;
 			default: 				printUsage("Unknown command");
 			} break;
-		case "network":		c.checkArgs(2); switch(args[1]) {
+		case "network":			c.checkArgs(2); switch(args[1]) {
 			case "server":			c.checkArgs(3);	c.startServer(args[2]); break;
 			case "client":			c.checkArgs(4);	c.startClient(args[2], args[3]); break;
 			default: 				printUsage("Unknown command");
 			} break;
-		case "rsa": 		c.checkArgs(2); switch(args[1]) {
+		case "rsa": 			c.checkArgs(2); switch(args[1]) {
 			case "generate-keys": 	c.checkArgs(3);	c.rsaGenerateKeys(args[2]);	break;
 			case "encrypt":			c.checkArgs(4);	c.rsaEncrypt(args[2], args[3]); break;
 			case "decrypt": 		c.checkArgs(4); c.rsaDecrypt(args[2], args[3]); break;
 			default: 				printUsage("Unknown command");
 			} break;
-		case "dsa": 		c.checkArgs(2); switch(args[1]) {
+		case "dsa": 			c.checkArgs(2); switch(args[1]) {
 			case "generate-keys": 	c.checkArgs(3); c.dsaGenerateKeys(args[2]); break;
 			case "sign": 			c.checkArgs(4); c.dsaSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.dsaVerify(args[2], args[3], args[4], args[5]); break;
-			default:				printUsage("Unknown command");
+			default: 				printUsage("Unknown command");
 			} break;
 		default: 					printUsage("Unknown command");
 		}
 	}
 	
-	private void checkArgs(int required) {
-		if (argsNum < required) {
-			printUsage("Not enough parameters");
-			System.exit(1);
-		}
-	}
-	
+	// Hashing
 	private void hash(String func, String text) {
 		System.out.println(lib.getHexHash(func, text));
 	}
 	
-	private void eccTest(String ks) {
-		ECC ecc = new ECC(lib.getBI(-9), lib.getBI(12), lib.getBI(13));
-		//ecc.test();
-		
-		// new
-		BigInteger a = lib.getBI(-3);
-		BigInteger b = lib.getBI("64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 16);
-		BigInteger p = lib.getBI("6277101735386680763835789423207666416083908700390324961279");
-		ecc = new ECC(a, b, p);
-		System.out.println("a: "+ a);
-		System.out.println("b: "+ b);
-		System.out.println("p: "+ p + "\n");
-		
-		
-		BigInteger Gx = new BigInteger("188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", 16);
-		BigInteger Gy = new BigInteger("07192b95ffc8da78631011ed6b24cdd573f977a11e794811", 16);
-		ECPoint G = new ECPoint(Gx, Gy);
-		
-		System.out.println("G: \n" + G.toString(16) + "\n");
-		
-		BigInteger k = lib.getBI(ks);
-		System.out.println("k: "+ k);
-		
-		ECPoint R = ecc.scalarMultiplication(G, k);
-		System.out.println(R.toString(16));
-	}
-	
+	// Certificate functions
 	private void certRead(String filename) {
 		System.out.println( certH.getCertInfo((certH.readCert(filename))));
 	}
@@ -114,17 +73,7 @@ public class Crypto {
 		}
 	}
 	
-	/// Networking
-	private void startServer(String port) {
-		net = new NetHelper();
-		net.listen(Integer.parseInt(port));
-	}
-	
-	private void startClient(String filename, String filenam) {
-		System.out.println( certH.getCertInfo((certH.readCert(filename))));
-	}
-	
-	// RSA//
+	// RSA
 	private void rsaGenerateKeys(String prefix) {
 		rsa.generateKeys(2048);
 		rsa.saveKeys(prefix);
@@ -138,7 +87,7 @@ public class Crypto {
 		rsa.decrypt(cipher);
 	}
 
-	// DSA//
+	// DSA
 	private void dsaGenerateKeys(String prefix) {
 		dsa.generateKeys();
 		dsa.saveKeys(prefix);
@@ -157,24 +106,103 @@ public class Crypto {
 		}
 	}
 
+	// Networking
+	private void startServer(String port) {
+		net = new NetHelper();
+		net.listen(Integer.parseInt(port));
+	}	
+	private void startClient(String filename, String filenam) {
+		System.out.println( certH.getCertInfo((certH.readCert(filename))));
+	}
+	
+	// ECC
+	private void eccTest(String curve, String ks) {
+		ECC ecc = new ECC();
+		BigInteger a, b, p;
+		ECPoint G = new ECPoint();
+		
+		if (curve.equalsIgnoreCase("p192")) {
+			// set domain parameters for curve p192 as specifed by:
+			// http://csrc.nist.gov/groups/ST/toolkit/documents/dss/NISTReCur.pdf
+			a = lib.getBI(-3);
+			b = lib.getBI("64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 16);
+			p = lib.getBI("6277101735386680763835789423207666416083908700390324961279");
+			ecc = new ECC(a, b, p);
+			
+			BigInteger Gx = new BigInteger("188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", 16);
+			BigInteger Gy = new BigInteger("07192b95ffc8da78631011ed6b24cdd573f977a11e794811", 16);
+			G = new ECPoint(Gx, Gy);
+		}
+		else {
+			printUsage("Unsupported curve: " + curve);
+		}
+		BigInteger k = lib.getBI(ks);
+		
+		System.out.println("Domain parameters: \n" + ecc.toString());
+		System.out.println("G: \n" + G.toString(16) );
+		System.out.println("K: " + k + " (in bits: " + k.toString(2) +")\n");
+		
+		// Scalar multiplication
+		// compare values with http://point-at-infinity.org/ecc/nisttv
+		ECPoint R = ecc.scalarMultiplication(G, k);
+		System.out.println(R.toString(16));
+	}
+
 	// general methods
+	private void checkArgs(int required) {
+		if (argsNum < required) {
+			printUsage("Not enough parameters provided");
+		}
+	}
 	private static void printUsage(String message) {
 		printUsage();
 		System.out.println(message);
+		System.exit(1);
 	}
 	private static void printUsage() {
-		String help = "Usage:\n"
-				+ "hash function input\n"
-	    		+ " - function can be MD5, SHA-1, SHA-256\n"
-	    		+ "\n"
-	    		+ "rsa generate-keys key-prefix\n"
-	    		+ "- generates rsa keys and saves them in files named prefix.*.key\n"
-	    		+ "\n"
-	    		+ "rsa encrypt key-prefix input\n"
-	    		+ "- encrypts the given input using the keys specified by key-prefix\n"
-	    		+ "\n"
-	    		+ "rsa decrypt key-prefix input\n"
-	    		+ "- decrypts the given input using the keys specified by key-prefix\n";
-		System.out.println("Error: " + help);
+		String usage = new StringBuilder()
+        .append("Usage: crypto command [sub-command] [args]                  \n")
+        .append("                                                            \n")
+        .append("Command may be one of the following:                        \n")
+        .append(" hash, ecc, cert, rsa, dsa, network                         \n")
+        .append("                                                            \n")
+        .append("Complete list of commands, sub-commands and options:        \n")
+        .append("  hash:                                                     \n")
+        .append("     [function] [input-text]                                \n")
+        .append("       - function can any function that is supported by Java (ex. MD5, SHA-1, SHA-256)\n")
+        .append("                                                            \n")
+        .append("  rsa:                                                      \n")
+        .append("     generate-keys [key-prefix]                             \n")
+        .append("       - generates rsa keys and saves them in files named prefix.*.key\n")
+        .append("     encrypt [key-prefix] [input]                           \n")
+        .append("       - encrypts the given input using the keys specified by key-prefix (you must run generate-keys first)\n")
+        .append("     decrypt [key-prefix] [input]                           \n")
+        .append("       - decrypts the given input using the keys specified by key-prefix (you must run generate-keys first)\n")
+        .append("                                                            \n")
+        .append("  cert:                                                     \n")
+		.append("     read [cert-file]                                       \n")
+		.append("       - reads a certificate and prints some information    \n")
+		.append("     verify [ca-file] [cert-file]                           \n")
+		.append("       - verifies if the certificate is derived from the specified CA certificate\n")
+		.append("                                                            \n")
+		.append("  dsa:                                                      \n")
+		.append("     generate-keys [key-prefix]                             \n")
+		.append("       - generate dsa keys and save them in files named dsa.prefix.*.key\n")
+		.append("     sign [key-prefix] [input]                              \n")
+		.append("       - sign the input message with the keys specified by input\n")
+		.append("     verify [key-prefix] [r] [s] [input]                    \n")
+		.append("       - verify that the signature specified by r and s matches to the input message\n")
+		.append("                                                            \n")
+		.append("  network:                                                  \n")
+		.append("     server [port]                                          \n")
+		.append("       - start a server and listen on the spefied port      \n")
+		.append("     client [address] [port]                                \n")
+		.append("       - conntect to the specified address and port         \n")
+		.append("                                                            \n")
+		.append("  ecc:                                                      \n")
+		.append("     p192 [k]                                               \n")
+		.append("       - calculate point R on the NIST Curve P192           \n")
+        .toString();
+		System.out.println("Error: " + usage);
 	}
 }
