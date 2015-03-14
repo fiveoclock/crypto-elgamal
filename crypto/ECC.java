@@ -45,8 +45,7 @@ public class ECC {
 		BigInteger x2_x1 = Q.getX().subtract(P.getX());
 		
 		// Division entspricht einer Multiplikation mit dem Inversen
-		BigInteger k = x2_x1.modInverse(p).multiply(y2_y1);
-		//BigInteger k = y2_y1.multiply(x2_x1).modInverse(p);
+		BigInteger k = x2_x1.modInverse(p).multiply(y2_y1); // 1
 		
 		//System.out.println("y2-y1: " +y2_y1);
 		//System.out.println("y2-y1: " +x2_x1);
@@ -84,24 +83,18 @@ public class ECC {
 		ECPoint R = new ECPoint(zero, zero);
 		
 		for (int i = 0; i < k.bitLength(); i++) {
-			if (k.testBit(i) == true) {
+			if (k.testBit(i) == true)
 				System.out.print(1);
-			}
-			else {
+			else
 				System.out.print(0);
-			}
 		}
 		System.out.println();
 
 		for (int i = 0; i < k.bitLength(); i++) {
 			if (k.testBit(i) == true) {
-				System.out.print(1);
 				R = pAdd(P,R);
 			}
-			else {
-				System.out.print(0);
-				P = pDouble(P);
-			}
+			P = pDouble(P);
 		}
 		
 		return R;
