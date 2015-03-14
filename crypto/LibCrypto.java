@@ -13,7 +13,6 @@ public class LibCrypto {
 	private static BigInteger two = BigInteger.valueOf(2);
 	private static BigInteger three = BigInteger.valueOf(3);
 
-
     private Random rnd;
 
     public LibCrypto() {

@@ -150,13 +150,12 @@ public class Crypto {
 
 	// general methods
 	private void checkArgs(int required) {
-		if (argsNum < required) {
+		if (argsNum < required)
 			printUsage("Not enough parameters provided");
-		}
 	}
 	private static void printUsage(String message) {
 		printUsage();
-		System.out.println(message);
+		System.out.println("Error: " + message);
 		System.exit(1);
 	}
 	private static void printUsage() {
@@ -203,6 +202,6 @@ public class Crypto {
 		.append("     p192 [k]                                               \n")
 		.append("       - calculate point R on the NIST Curve P192           \n")
         .toString();
-		System.out.println("Error: " + usage);
+		System.out.println(usage);
 	}
 }
