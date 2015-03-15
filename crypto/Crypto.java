@@ -29,8 +29,8 @@ public class Crypto {
 			default: 				printUsage("Unknown command");
 			} break;
 		case "network":			c.checkArgs(2); switch(args[1]) {
-			case "server":			c.checkArgs(3);	c.startServer(args[2]); break;
-			case "client":			c.checkArgs(4);	c.startClient(args[2], args[3]); break;
+			case "server":			c.checkArgs(3);	c.netServer(args[2]); break;
+			case "client":			c.checkArgs(4);	c.netClient(args[2], args[3]); break;
 			default: 				printUsage("Unknown command");
 			} break;
 		case "rsa": 			c.checkArgs(2); switch(args[1]) {
@@ -106,25 +106,37 @@ public class Crypto {
 	}
 
 	// Networking
-	private void startServer(String port) {
+	private void netServer(String port) {
 		if (net.listen(Integer.parseInt(port)) ) {
-			System.out.println("Client connected - IP: " + net.getClientIP());
-			net.send("Welcome to the crypto server.\n"
-				+ " For every line you send you will receive the SHA-1 hash of that line. \n"
-				+ " Be careful no encryption implemented so far, thus secret services will most likely capture this.\n\n");
-			
-			while (true) {
-				String line = net.receiveLine();
-				if (!line.equals("")) {
-					String hash = lib.getHexHash("SHA-1", line);
-					System.out.println(line + " - Hash: " + hash);
-					net.send(hash + "\n");
+			while (net.acceptConnection()) {
+				System.out.println("Client connected - IP: " + net.getClientIP());
+				net.send("Welcome to the crypto server.\n"
+					+ " For every line you send you will receive the SHA-1 hash of that line. \n"
+					+ " Be careful no encryption implemented so far, thus secret services will most likely capture this.\n\n");
+				
+				String line;
+				while ((line = net.receiveLine()) != null) {
+					if (!line.equals("")) {
+						String hash = lib.getHexHash("SHA-1", line);
+						System.out.println(line + " - Hash: " + hash);
+						net.send(hash + "\n");
+					}
 				}
 			}
 		}
 	}
-	private void startClient(String filename, String filenam) {
-		System.out.println( certH.getCertInfo((certH.readCert(filename))));
+	private void netClient(String host, String port) {
+		if (net.connect(host, Integer.parseInt(port)) ) {
+			System.out.println("Connected to " + host + ":" + port);
+			System.out.println(net.receive());
+			System.out.println("test");
+			
+			String line;
+			while ((line = System.console().readLine()) != null) {
+				net.send(line+"\n");
+				System.out.println(net.receive());
+			}
+		}
 	}
 	
 	// ECC

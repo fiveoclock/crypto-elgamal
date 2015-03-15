@@ -19,19 +19,36 @@ public class NetHelper {
 		    return true;
 		} 
 		catch (IOException e) {
-			System.out.println(e.getMessage());
+			lib.printError(e);
 			return false;
 		}
 	}
 	
-	public boolean connect(String host, int port) throws UnknownHostException, IOException{
+	public boolean acceptConnection() {
+		try {
+		    clientSocket = serverSocket.accept();
+		    setupHandles(clientSocket);
+		    return true;
+		} 
+		catch (IOException e) {
+			lib.printError(e);
+			return false;
+		}
+	}
+	
+	public boolean connect(String host, int port) {
         System.out.println("Attempting to connect to "+host+":"+port);
-        clientSocket = new Socket(host,port);
-        setupHandles(clientSocket);
-        return true;
+        try {
+			clientSocket = new Socket(host,port);
+	        setupHandles(clientSocket);
+	        return true;
+		} catch (IOException e) {
+			lib.printError(e);
+			return false;
+		}
     }
 	
-	public boolean setupHandles(Socket sock) {
+	private boolean setupHandles(Socket sock) {
 		try {
 			out = new PrintWriter(sock.getOutputStream(), true);
 			in = new BufferedReader( new InputStreamReader(sock.getInputStream()));
@@ -59,41 +76,35 @@ public class NetHelper {
 	
 	public String receiveLine() {
         try {
-			return in.readLine();
+			return in.readLine(); 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			lib.printError(e);
 			return null;
 		}
     }
 	
     public String receive() {
-    	String s;
-		while ((s = receiveLine()) != null) {
-		    System.out.println(s);
+    	String s = null;
+		try {
+			while (in.ready()) {
+				s += in.readLine();
+			}
+		} catch (IOException e) {
+			lib.printError(e);
 		}
 		return s;
     }
 	
-	public void start(int port) throws IOException {
-        System.out.println("Starting the socket server at port:" + port);
-        serverSocket = new ServerSocket(port);
-        
-        //Listen for clients. Block till one connects
-        
-        System.out.println("Waiting for clients...");
-        Socket client = serverSocket.accept();
-        
-        //A client has connected to this server. Send welcome message
-        //sendWelcomeMessage(client);
-    }
+	public void close() {
+		try {
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			lib.printError(e);
+		}
+	}
 	
 	public String getClientIP() {
 		return clientSocket.getInetAddress().getHostAddress().toString();
 	}
-    
-
-
-
-	
 }
