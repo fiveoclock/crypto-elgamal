@@ -14,8 +14,6 @@ public class NetHelper {
 	public boolean listen(int port) {
 		try {
 			serverSocket = new ServerSocket(port);
-		    clientSocket = serverSocket.accept();
-		    setupHandles(clientSocket);
 		    return true;
 		} 
 		catch (IOException e) {
