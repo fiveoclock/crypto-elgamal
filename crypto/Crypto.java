@@ -110,15 +110,17 @@ public class Crypto {
 		if (net.listen(Integer.parseInt(port)) ) {
 			System.out.println("Listening on port: " + port);
 			
-			net.acceptConnection();
-			System.out.println("Client connected - IP: " + net.getClientIP());
-			
-			String line;
-			while ((line = net.receiveLine()) != null) {
-				if (!line.equals("")) {
-					String hash = lib.getHexHash("SHA-1", line);
-					System.out.println(line + " / SHA-1: " + hash);
-					net.send(hash + "\n");
+			while (true) {
+				net.acceptConnection();
+				System.out.println("Client connected - IP: " + net.getClientIP());
+				
+				String line;
+				while ((line = net.receiveLine()) != null) {
+					if (!line.equals("")) {
+						String hash = lib.getHexHash("SHA-1", line);
+						System.out.println(line + " / SHA-1: " + hash);
+						net.send(hash + "\n");
+					}
 				}
 			}
 		}
