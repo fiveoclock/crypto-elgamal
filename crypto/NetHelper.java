@@ -7,7 +7,7 @@ import java.net.*;
  * @author alex
  * This class combines various methods that are needed for both servers and clients
  */
-public class NetHelper {
+public class NetHelper extends Thread {
 	private LibCrypto lib = new LibCrypto();
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -15,6 +15,17 @@ public class NetHelper {
 	private PrintWriter out;
 	private InputStreamReader insr;
 	private BufferedReader inbr;
+
+	public NetHelper() { }
+	
+	/**
+	 * @param socket
+	 * Constructor that takes a socket; for threaded use
+	 */
+	public NetHelper(Socket sock) {
+		this.clientSocket = sock;
+		setupHandles(clientSocket);
+	}
 
 	/**
 	 * @param port
@@ -36,15 +47,15 @@ public class NetHelper {
 	 * @return
 	 * Waits for incoming connections
 	 */
-	public boolean acceptConnection() {
+	public Socket acceptConnection() {
 		try {
 		    clientSocket = serverSocket.accept();
 		    setupHandles(clientSocket);
-		    return true;
+		    return clientSocket;
 		} 
 		catch (IOException e) {
 			lib.printError(e);
-			return false;
+			return clientSocket;
 		}
 	}
 	
@@ -138,5 +149,22 @@ public class NetHelper {
 	 */
 	public String getClientIP() {
 		return clientSocket.getInetAddress().getHostAddress().toString();
+	}
+
+	public void run() {
+		send("Welcome to the crypto service.\r"
+				+ " Every line you send will be hashed with SHA-1 and sent back.\n"
+				+ " Be careful tough as everything is transmitted unencrypted, thus secret services will most likely capture this.\n");
+
+		String line;
+		while ((line = receiveLine()) != null) {
+			if (!line.equals("")) {
+				String hash = lib.getHexHash("SHA-1", line);
+				System.out.println(line + " / SHA-1: " + hash);
+				send(hash + "\n");
+			}
+		}
+		System.out.println("Client disconnected; IP: " + getClientIP());
+		close();
 	}
 }

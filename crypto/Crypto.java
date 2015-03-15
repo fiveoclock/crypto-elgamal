@@ -111,30 +111,24 @@ public class Crypto {
 			System.out.println("Listening on port: " + port);
 			
 			while (true) {
-				net.acceptConnection();
+				NetHelper serverThread = new NetHelper(net.acceptConnection());
+				serverThread.start();
 				System.out.println("Client connected; IP: " + net.getClientIP());
-				net.send("Welcome to the crypto server.\r"
-						+ " Every line you send will be hashed with SHA-1 and sent back.\n"
-						+ " Be careful tough as everything is transmitted unencrypted, thus secret services will most likely capture this.\n");
-				
-				String line;
-				while ((line = net.receiveLine()) != null) {
-					if (!line.equals("")) {
-						String hash = lib.getHexHash("SHA-1", line).toLowerCase();
-						System.out.println(line + " / SHA-1: " + hash);
-						net.send(hash + "\n");
-					}
-				}
-				System.out.println("Client disconnected; IP: " + net.getClientIP());
-				net.close();
 			}
 		}
 	}
 	private void netClient(String host, String port) {
 		if (net.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
-			lib.sleep(100);  // give the server some time to prepare the welcome message :/
-			System.out.println(net.receive());
+
+			// must often be called multiple times because it doesn't return 
+			// the welcome message the first time (race-condition); alternative
+			// lib.sleep(100);  // give the server some time to prepare the welcome message :/
+			String rec = net.receive();
+			while (rec.equals("")) {
+				rec = net.receive();
+			}
+			System.out.println(rec);
 			
 			String line;
 			while ((line = System.console().readLine()) != null) {
@@ -217,21 +211,21 @@ public class Crypto {
 		.append("                                                            \n")
 		.append("  dsa:                                                      \n")
 		.append("     generate-keys [key-prefix]                             \n")
-		.append("       - generate dsa keys and save them in files named dsa.prefix.*.key\n")
+		.append("       - generates dsa keys and save them in files named dsa.prefix.*.key\n")
 		.append("     sign [key-prefix] [input]                              \n")
-		.append("       - sign the input message with the keys specified by input\n")
+		.append("       - signs the input message with the keys specified by input\n")
 		.append("     verify [key-prefix] [r] [s] [input]                    \n")
-		.append("       - verify that the signature specified by r and s matches to the input message\n")
+		.append("       - verifies that the signature specified by r and s matches to the input message\n")
 		.append("                                                            \n")
 		.append("  network:                                                  \n")
 		.append("     server [port]                                          \n")
-		.append("       - start a server and listen on the spefied port      \n")
+		.append("       - starts a network hashing service; hashes incoming hashes and sends them back \n")
 		.append("     client [address] [port]                                \n")
-		.append("       - conntect to the specified address and port         \n")
+		.append("       - client for the hashing service                     \n")
 		.append("                                                            \n")
 		.append("  ecc:                                                      \n")
 		.append("     p192 [k]                                               \n")
-		.append("       - calculate point R on the NIST Curve P192           \n")
+		.append("       - calculates point R on the NIST Curve P192          \n")
         .toString();
 		System.out.println(usage);
 	}

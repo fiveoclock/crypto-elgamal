@@ -51,7 +51,7 @@ public class LibCrypto {
      */
     public String getHexHash(String func, String s) {
     	byte[] hash = hash(func, s);
-    	return (new HexBinaryAdapter()).marshal(hash);
+    	return (new HexBinaryAdapter()).marshal(hash).toLowerCase();
     }
     
     /**
