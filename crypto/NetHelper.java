@@ -56,16 +56,6 @@ public class NetHelper {
 			return false;
 		}
 	}
-
-    public void send1() {
-        try {
-        	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.clientSocket.getOutputStream()));
-			writer.write("Hello. You are connected to a Simple Socket Server. What is your name?");
-	        writer.flush();
-		} catch (IOException e) {
-			lib.printError(e);
-		}
-    }
     
 	public void send(String msg) {
 		out.print(msg);

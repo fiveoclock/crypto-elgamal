@@ -108,19 +108,17 @@ public class Crypto {
 	// Networking
 	private void netServer(String port) {
 		if (net.listen(Integer.parseInt(port)) ) {
-			while (net.acceptConnection()) {
-				System.out.println("Client connected - IP: " + net.getClientIP());
-				net.send("Welcome to the crypto server.\n"
-					+ " For every line you send you will receive the SHA-1 hash of that line. \n"
-					+ " Be careful no encryption implemented so far, thus secret services will most likely capture this.\n\n");
-				
-				String line;
-				while ((line = net.receiveLine()) != null) {
-					if (!line.equals("")) {
-						String hash = lib.getHexHash("SHA-1", line);
-						System.out.println(line + " - Hash: " + hash);
-						net.send(hash + "\n");
-					}
+			System.out.println("Listening on port: " + port);
+			
+			net.acceptConnection();
+			System.out.println("Client connected - IP: " + net.getClientIP());
+			
+			String line;
+			while ((line = net.receiveLine()) != null) {
+				if (!line.equals("")) {
+					String hash = lib.getHexHash("SHA-1", line);
+					System.out.println(line + " / SHA-1: " + hash);
+					net.send(hash + "\n");
 				}
 			}
 		}
@@ -128,13 +126,13 @@ public class Crypto {
 	private void netClient(String host, String port) {
 		if (net.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
-			System.out.println(net.receive());
-			System.out.println("test");
 			
 			String line;
 			while ((line = System.console().readLine()) != null) {
-				net.send(line+"\n");
-				System.out.println(net.receive());
+				if (!line.equals("")) {
+					net.send(line+"\n");
+					System.out.println(net.receiveLine());
+				}
 			}
 		}
 	}
