@@ -139,4 +139,16 @@ public class LibCrypto {
 		printError(msg);
 		System.exit(1);
 	}
+	
+	/**
+	 * @param milliseconds
+	 * Just puts the thread to sleep for the defined amount of time
+	 */
+	public void sleep(int milliseconds) {
+		try {
+		    Thread.sleep(milliseconds);
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
+	}
 }
