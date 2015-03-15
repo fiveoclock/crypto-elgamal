@@ -29,7 +29,7 @@ public class FileHelper {
 			out.write(data);
 			out.close();
 		} catch (IOException e) {
-			lib.error("Error writing file: "+filename+" - exiting", e);
+			lib.exit("Error writing file: "+filename+" - exiting", e);
 		}
 	}
 	
@@ -45,7 +45,7 @@ public class FileHelper {
 			return bis;
 		}
 		catch (IOException e) {
-			lib.error("Error opening file: "+filename+" - exiting", e);
+			lib.exit("Error opening file: "+filename+" - exiting", e);
 			return null;
 		}
 	}
@@ -68,7 +68,7 @@ public class FileHelper {
 			return file;
 		}
 		catch (IOException e) {
-			lib.error("Error reading file: "+filename+" - exiting", e);
+			lib.exit("Error reading file: "+filename+" - exiting", e);
 			return null;
 		}
 	}

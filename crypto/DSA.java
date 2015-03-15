@@ -158,7 +158,7 @@ public class DSA {
 		        BigInteger hash = new BigInteger(md.digest());
 		        s = (k.modInverse(q).multiply(hash.add(x.multiply(r)))).mod(q);
 		    } catch (NoSuchAlgorithmException e) {
-				lib.error(e);
+				lib.exit(e);
 				s = zero;
 		    }
 		}
@@ -195,7 +195,7 @@ public class DSA {
 	        v = ((g.modPow(u1, p).multiply(y.modPow(u2, p))).mod(p)).mod(q);
 	    } 
 	    catch (NoSuchAlgorithmException e) {
-			lib.error(e);
+			lib.exit(e);
 	    }
 	    return v.compareTo(r) == 0;
 	}

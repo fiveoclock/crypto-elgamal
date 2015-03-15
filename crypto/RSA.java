@@ -92,7 +92,7 @@ public class RSA {
 	public String encrypt(String msg) {
 		BigInteger m = new BigInteger(msg.getBytes());
 		if (m.compareTo(n) != -1) {
-			lib.error("Message is too long; split into smaler chunks");
+			lib.exit("Message is too long; split into smaler chunks");
 		}
 		
 		BigInteger c = m.modPow(e, n);
@@ -107,7 +107,7 @@ public class RSA {
 	public String decrypt(String cipher) {
 		BigInteger c = new BigInteger(cipher);
 		if (c.compareTo(n) != -1) {
-			lib.error("Message is too long; split into smaler chunks");
+			lib.exit("Message is too long; split into smaler chunks");
 		}
 		
 		BigInteger m = c.modPow(d, n);

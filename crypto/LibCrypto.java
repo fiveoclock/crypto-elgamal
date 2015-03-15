@@ -90,29 +90,53 @@ public class LibCrypto {
         return prime;
     }
     
+    
     /**
      * @param msg
      * @param e
      * Prints a message specified by msg and the exception message to console and then exits 
      */
-    public void error(String msg, Exception e) {
-		System.out.println(msg + " - " + e.getMessage());
+    public void printError(String msg, Exception e) {
+		System.out.println(msg + " - " + e.getMessage());;
+	}
+    /**
+     * @param e
+     * Prints the exception message to console and then exits
+     */
+    public void printError(Exception e) {
+		System.out.println("Error"+" - "+e.getMessage());
+	}
+	/**
+	 * @param msg
+	 * Prints a message specified by msg to console and then exits
+	 */
+	public void printError(String msg) {
+		System.out.println("Error: " + msg);
+	}
+    
+    /**
+     * @param msg
+     * @param e
+     * Prints a message specified by msg and the exception message to console and then exits 
+     */
+    public void exit(String msg, Exception e) {
+    	printError(msg, e);
 		System.exit(1);
 	}
     /**
      * @param e
      * Prints the exception message to console and then exits
      */
-    public void error(Exception e) {
-		System.out.println("Error"+" - "+e.getMessage());
+    public void exit(Exception e) {
+    	printError(e);
 		System.exit(1);
 	}
 	/**
 	 * @param msg
 	 * Prints a message specified by msg to console and then exits
 	 */
-	public void error(String msg) {
-		System.out.println("Error: " + msg);
+	public void exit(String msg) {
+		printError(msg);
 		System.exit(1);
 	}
 }

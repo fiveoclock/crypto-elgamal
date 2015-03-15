@@ -3,19 +3,14 @@ package crypto;
 import java.math.BigInteger;
 
 public class Crypto {
-	private LibCrypto lib;
-	private RSA rsa;
-	private DSA dsa;
-	private CertHelper certH;
-	private NetHelper net;
+	private LibCrypto lib = new LibCrypto();
+	private RSA rsa = new RSA();;
+	private DSA dsa = new DSA();;
+	private CertHelper certH = new CertHelper();
+	private NetHelper net = new NetHelper();;
 	private static int argsNum;
 
-    public Crypto() {
-		lib = new LibCrypto();
-		rsa = new RSA();
-		dsa = new DSA();
-		certH = new CertHelper();
-	}
+    public Crypto() { }
 
 	public static void main(String[] args) {
 		Crypto c = new Crypto();
@@ -112,9 +107,22 @@ public class Crypto {
 
 	// Networking
 	private void startServer(String port) {
-		net = new NetHelper();
-		net.listen(Integer.parseInt(port));
-	}	
+		if (net.listen(Integer.parseInt(port)) ) {
+			System.out.println("Client connected - IP: " + net.getClientIP());
+			net.send("Welcome to the crypto server.\n"
+				+ " For every line you send you will receive the SHA-1 hash of that line. \n"
+				+ " Be careful no encryption implemented so far, thus secret services will most likely capture this.\n\n");
+			
+			while (true) {
+				String line = net.receiveLine();
+				if (!line.equals("")) {
+					String hash = lib.getHexHash("SHA-1", line);
+					System.out.println(line + " - Hash: " + hash);
+					net.send(hash + "\n");
+				}
+			}
+		}
+	}
 	private void startClient(String filename, String filenam) {
 		System.out.println( certH.getCertInfo((certH.readCert(filename))));
 	}

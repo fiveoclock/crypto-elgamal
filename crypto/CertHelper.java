@@ -46,14 +46,14 @@ public class CertHelper {
 	 */
 	public boolean verifyCert(Certificate ca, Certificate cert) {
 		if (ca == null || cert == null) {
-			lib.error("One of the certificates is null");
+			lib.exit("One of the certificates is null");
 			return false;
 		}
 		try {
 			cert.verify(ca.getPublicKey());
 		} 
 		catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
-			lib.error("Error when trying to verify the certificate: "+e.getMessage(), e);
+			lib.exit("Error when trying to verify the certificate: "+e.getMessage(), e);
 			return false;
 		} 
 		return true;
@@ -77,9 +77,9 @@ public class CertHelper {
 			}
 		}
 		catch (IOException e) {
-			lib.error("Error reading the certificate: "+filename+" - exiting", e);
+			lib.exit("Error reading the certificate: "+filename+" - exiting", e);
 		} catch (CertificateException e) {
-			lib.error("Error when trying to interpret the certificate: "+filename, e);
+			lib.exit("Error when trying to interpret the certificate: "+filename, e);
 		}
 		return cert;
 	}
