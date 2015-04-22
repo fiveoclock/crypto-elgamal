@@ -13,8 +13,7 @@ Die Aufgabenstellung für den ersten Tag war folgende Funktionen zu implementier
 Dafür wurde ein Java-Programm Namens Crypto geschrieben, dass die geforderten Funktionen erfüllt. Nachfolgend ist aufgelistet, wie das Programm zu benutzen ist:
 
 
-==============================================================
-
+```
 Usage: crypto command [sub-command] [args]                  
                                                             
 Command may be one of the following:                        
@@ -57,42 +56,14 @@ Complete list of commands, sub-commands and options:
      p192 [k]                                               
        - calculates point R on the NIST Curve P192          
 
-
-==============================================================
-
+```
 
 Nachfolgend sind einige Aufrufe exemplarisch gelistet:
 
-- um die Hash-Funktion aufzurufen:
-    java crypto.Crypto hash SHA-1 FH-Campus-Wien-ITS16  
+ - um die Hash-Funktion aufzurufen: # java crypto.Crypto hash SHA-1 FH-Campus-Wien-ITS16  
 
-- um den Server zu starten:
-    java crypto.Crypto network server 1234 
+ - um den Server zu starten:        # java crypto.Crypto network server 1234 
 
-- um den Cient zu starten:
-    java crypto.Crypto network client localhost 1234  
-
-
-==============================================================
-
-
-Um die benötigten Zertifikate zu erstellen wurden folgende OpenSSL Befehle verwendet:
-
-### Erstellen des CA Keys + Zertifikats
-openssl genrsa -out ca.key 4096
-openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
-
-### Erstellen eines Keys und eines Certificate Signing Request (csr-file)
-openssl genrsa -out crt-mail-alexander.ganster.key 4096
-openssl req -new -key crt-mail-alexander.ganster.key -out crt-mail-alexander.ganster.csr -sha512
-
-### Signieren des Zertifikats von der CA
-openssl x509 -req -in crt-mail-alexander.ganster.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out crt-mail-alexander.ganster.crt -days 365 -sha512
-
-### Anzeigen des Zertifikats
-openssl x509 -text -in crt-mail-alexander.ganster.crt
-
-### Verifizieren des Zertifikats
-openssl verify -CAfile ca.crt crt-mail-alexander.ganster.crt
+ - um den Cient zu starten:         # java crypto.Crypto network client localhost 1234  
 
 
