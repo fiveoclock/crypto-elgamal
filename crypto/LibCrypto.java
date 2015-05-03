@@ -20,7 +20,7 @@ public class LibCrypto {
     private Random rnd;
 
     public LibCrypto() {
-    	rnd = new Random(System.currentTimeMillis());
+    	rnd = new Random(System.currentTimeMillis() + System.nanoTime());
     }
 
     /**
@@ -56,28 +56,28 @@ public class LibCrypto {
     
     /**
      * @return
-     * Returns an instance of Random(); centralized for better randomness
+     * Returns an instance of Random(); centralized for eventually better randomness
      */
     public Random getRandom() {
     	return rnd;
     }
     
     /**
-     * @param length
+     * @param maxSize
      * @return
-     * Returns a random positive int of the desired length
+     * Returns a random positive int of the desired maximum size
      */
-    public int randInt(int length) {
-    	return (int) (Math.random() * length);
+    public int randInt(int maxSize) {
+    	return (int) (Math.random() * maxSize); 
     }
     
     /**
-     * @param length
+     * @param maxSize
      * @return
-     * Returns a random int that can be negative of the desired length
+     * Returns a random int that can be negative of the desired maximum size
      */
-    public int randNegInt(int length) {
-    	return randInt(length) - length/2;
+    public int randNegInt(int maxSize) {
+    	return randInt(maxSize) - maxSize/2;
     }
     
     /**

@@ -4,10 +4,11 @@ import java.math.BigInteger;
 
 public class Crypto {
 	private LibCrypto lib = new LibCrypto();
-	private RSA rsa = new RSA();;
-	private DSA dsa = new DSA();;
+	private RSA rsa = new RSA();
+	private DSA dsa = new DSA();
+	private Elgamal elgamal = new Elgamal();
 	private CertHelper certH = new CertHelper();
-	private NetHelper net = new NetHelper();;
+	private NetHelper net = new NetHelper();
 	private static int argsNum;
 
     public Crypto() { }
@@ -21,31 +22,37 @@ public class Crypto {
 		case "hash": 			c.checkArgs(3); c.hash(args[1], args[2]); break;
 		case "ecc": 			c.checkArgs(2); switch(args[1]) {
 			case "p192":			c.checkArgs(2); c.eccTest(args[1], args[2]); break;
-			default: 				printUsage("Unknown command");
+			default: 				printUsage("Unknown command in ecc");
 		} break;
 		case "cert": 			c.checkArgs(2); switch(args[1]) {
 			case "read": 			c.checkArgs(3); c.certRead(args[2]); break;
 			case "verify": 			c.checkArgs(4); c.verifyCert(args[2], args[3]); break;
-			default: 				printUsage("Unknown command");
+			default: 				printUsage("Unknown command in cert");
 			} break;
 		case "network":			c.checkArgs(2); switch(args[1]) {
 			case "server":			c.checkArgs(3);	c.netServer(args[2]); break;
 			case "client":			c.checkArgs(4);	c.netClient(args[2], args[3]); break;
-			default: 				printUsage("Unknown command");
+			default: 				printUsage("Unknown command in network");
+			} break;
+		case "elgamal": 		c.checkArgs(2); switch(args[1]) {
+			case "generate-keys": 	c.checkArgs(3); c.elgamalGenerateKeys(args[2]); break;
+			case "encrypt":			c.checkArgs(4);	c.elgamalEncrypt(args[2], args[3]); break;
+			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
+			default: 				printUsage("Unknown command in elgamal");
 			} break;
 		case "rsa": 			c.checkArgs(2); switch(args[1]) {
 			case "generate-keys": 	c.checkArgs(3);	c.rsaGenerateKeys(args[2]);	break;
 			case "encrypt":			c.checkArgs(4);	c.rsaEncrypt(args[2], args[3]); break;
 			case "decrypt": 		c.checkArgs(4); c.rsaDecrypt(args[2], args[3]); break;
-			default: 				printUsage("Unknown command");
+			default: 				printUsage("Unknown command in rsa");
 			} break;
 		case "dsa": 			c.checkArgs(2); switch(args[1]) {
 			case "generate-keys": 	c.checkArgs(3); c.dsaGenerateKeys(args[2]); break;
 			case "sign": 			c.checkArgs(4); c.dsaSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.dsaVerify(args[2], args[3], args[4], args[5]); break;
-			default: 				printUsage("Unknown command");
+			default: 				printUsage("Unknown command in dsa");
 			} break;
-		default: 					printUsage("Unknown command");
+		default: 					printUsage("Please specify command");
 		}
 	}
 	
@@ -67,6 +74,28 @@ public class Crypto {
 			System.out.println("The certificate "+file_cert+" was NOT issed by the CA "+file_ca);
 		}
 	}
+
+	// Elgamal
+	private void elgamalGenerateKeys(String prefix) {
+		elgamal.generateKeys(24);
+		elgamal.saveKeys(prefix);
+	}
+	private void elgamalEncrypt(String prefix, String message) {
+		elgamal.loadKeys(prefix);
+		String c = elgamal.encrypt(message);
+		System.out.println("Ciphertext (B, C): " + c);
+		//System.out.println("\nTesting decryption (m'): " + elgamal.decrypt(c));
+	}
+	private void elgamalDecrypt(String prefix, String b, String c) {
+		elgamal.loadKeys(prefix);
+		BigInteger B, C;
+		B = new BigInteger(b);
+		C  = new BigInteger(c);
+		
+		String m = elgamal.decrypt(B, C);
+		System.out.println("Decrypted message (m'): " + m);
+	}	
+	
 	
 	// RSA
 	private void rsaGenerateKeys(String prefix) {
@@ -105,6 +134,8 @@ public class Crypto {
 		}
 	}
 
+
+	
 	// Networking
 	private void netServer(String port) {
 		if (net.listen(Integer.parseInt(port)) ) {
