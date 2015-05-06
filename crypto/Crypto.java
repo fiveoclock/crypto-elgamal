@@ -38,6 +38,8 @@ public class Crypto {
 			case "generate-keys": 	c.checkArgs(3); c.elgamalGenerateKeys(args[2]); break;
 			case "encrypt":			c.checkArgs(4);	c.elgamalEncrypt(args[2], args[3]); break;
 			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
+			case "sign": 			c.checkArgs(4); c.elgamalSign(args[2], args[3]); break;
+			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
 		case "rsa": 			c.checkArgs(2); switch(args[1]) {
@@ -58,7 +60,7 @@ public class Crypto {
 	
 	// Hashing
 	private void hash(String func, String text) {
-		System.out.println(lib.getHexHash(func, text));
+		System.out.println(lib.getHexHash(func, text.getBytes()));
 	}
 	
 	// Certificate functions
@@ -80,9 +82,22 @@ public class Crypto {
 		elgamal.generateKeys(24);
 		elgamal.saveKeys(prefix);
 	}
+	private void elgamalSign(String prefix, String message) {
+		elgamal.loadKeys(prefix);
+		elgamal.sign(message.getBytes());
+	}
+	private void elgamalVerify(String prefix, String r, String s, String message) {
+		elgamal.loadKeys(prefix);
+		if (elgamal.verify(r, s, message)) {
+			System.out.println("> Correct!");
+		}
+		else {
+			System.out.println("> Incorrect!");
+		}
+	}
 	private void elgamalEncrypt(String prefix, String message) {
 		elgamal.loadKeys(prefix);
-		String c = elgamal.encrypt(message);
+		String c = elgamal.encrypt(new BigInteger(message.getBytes()));
 		System.out.println("Ciphertext (B, C): " + c);
 		//System.out.println("\nTesting decryption (m'): " + elgamal.decrypt(c));
 	}

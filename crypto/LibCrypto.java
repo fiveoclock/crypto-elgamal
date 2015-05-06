@@ -25,32 +25,32 @@ public class LibCrypto {
 
     /**
      * @param func
-     * @param s
+     * @param data
      * @return
      * Hashes the given string using the hash function specified by func and returns the hash as byte array;
      * See Java documentation for the selection of available hash functions
      */
-    public byte[] hash(String func, String s) {
+    public byte[] hash(String func, byte[] data) {
     	byte[] hash = null;
     	MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance(func);
-			messageDigest.update(s.getBytes());
+			messageDigest.update(data);
 	    	hash = messageDigest.digest();
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println(func + " is not a valid hash function");
 		}
 		return hash;
     }
-    
+
     /**
      * @param func
-     * @param s
+     * @param data
      * @return
      * Hashes a message and returns it as hexadecimal hash string
      */
-    public String getHexHash(String func, String s) {
-    	byte[] hash = hash(func, s);
+    public String getHexHash(String func, byte[] data) {
+    	byte[] hash = hash(func, data);
     	return (new HexBinaryAdapter()).marshal(hash).toLowerCase();
     }
     

@@ -1,6 +1,8 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author alex
@@ -17,6 +19,7 @@ public class Elgamal {
 	
 	private BigInteger p, g, A;
 	private BigInteger a;
+	private BigInteger pMinusOne;
 	
 	public Elgamal() {
 		lib = new LibCrypto();
@@ -29,12 +32,10 @@ public class Elgamal {
 	 */
 	public void generateKeys(int length) {
 		System.out.print("Calculating domain parameters p and q ");
-		BigInteger q, pMinusOne;
+		BigInteger q;
 		do {
 			p = BigInteger.probablePrime(length, lib.getRandom());
-			
 			pMinusOne = p.subtract(one);
-			
 			q = pMinusOne.divide(two);
 			System.out.print(".");
 		}
@@ -86,8 +87,6 @@ public class Elgamal {
 	 * Ofcourse this is only feasable with small groups
 	 */
 	private void testGenerator(BigInteger g) {
-		BigInteger pMinusOne = p.subtract(one);
-
 		BigInteger i = zero;
 		while (i.compareTo(pMinusOne) == -1) {
 			BigInteger calc = g.modPow(i, p);
@@ -97,6 +96,17 @@ public class Elgamal {
 			i = i.add(one);
 		}
 		System.out.println("Elements found: " + i +" of " + pMinusOne);
+	}
+	
+	/**
+	 * Debug method to test randomness
+	 */
+	private void testRandomness() {
+		BigInteger k;
+		while (true) {
+		k = new BigInteger(p.bitLength(), lib.getRandom());
+		System.out.println(k);
+		}
 	}
 	
 
@@ -125,6 +135,8 @@ public class Elgamal {
 		p = new BigInteger(pubkeys[0]);
 		g = new BigInteger(pubkeys[1]);
 		A = new BigInteger(pubkeys[2]);
+		// calculate p-1
+		pMinusOne = p.subtract(one);
 		
 		// Print keys
 		System.out.println("Private key: ");
@@ -138,12 +150,11 @@ public class Elgamal {
 	}
 	
 	/**
-	 * @param msg
+	 * @param m
 	 * @return
-	 * Encrypts the message specified by msg into a ciphertext
+	 * Encrypts the given message to ciphertext
 	 */
-	public String encrypt(String msg) {
-		BigInteger m = new BigInteger(msg.getBytes());
+	public String encrypt(BigInteger m) {
 		if (m.compareTo(p.subtract(one)) != -1) {
 			lib.exit("Message is too long; split into smaler chunks");
 		}
@@ -174,4 +185,64 @@ public class Elgamal {
 		return new String(m.toByteArray());
 	}
 	
+	
+	/**
+	 * @param data
+	 * Creates the signature (r,s) of the message specified by data
+	 */
+	public void sign(byte[] data) {
+		BigInteger k, kInverse, r, hash, s;
+		
+		do {
+		    // Generate a random per-message value k
+			// where 0 < k < q; and gcd(k,pMinusOne) = 1
+			do {
+				k = new BigInteger(p.bitLength(), lib.getRandom());
+			}
+			while ( k.compareTo(one) == -1 || k.compareTo(p.subtract(two)) == 1 || !(k.gcd(pMinusOne).equals(one)) );
+
+		    // pre-calculate the inverse ok k
+		    kInverse = k.modInverse(pMinusOne);
+
+		    // Calculate r = g^k mod p
+			r = g.modPow(k, p);
+
+			// Calculate s = (H(m) - a*r) * k^-1 mod (p-1)
+			hash = new BigInteger(lib.hash("SHA-1", data));
+			s = hash.subtract(a.multiply(r)).multiply(kInverse).mod(pMinusOne);
+		}
+		while (s.compareTo(zero) == 0);
+		
+	    System.out.println("Signature \n r: " + r + "\n s: " + s);
+	    // todo return signature
+	}
+
+	/**
+	 * @param r
+	 * @param s
+	 * @param msg
+	 * @return
+	 * Verifies if the signature (r, s) fits to the message specified by msg
+	 */
+	public boolean verify(String r2, String s2, String msg) {
+		BigInteger r = new BigInteger(r2);
+		BigInteger s = new BigInteger(s2);
+		BigInteger hash, v1, v2;
+		
+		if (r.compareTo(one) == -1 || r.compareTo(pMinusOne) == 1) {
+	        return false;
+	    }
+	    if (s.compareTo(one) == -1 || s.compareTo(pMinusOne) == 1) {
+	        return false;
+	    }
+	    
+	    // v1 = g^(h(m))
+	    hash = new BigInteger(lib.hash("SHA-1", msg.getBytes()));
+	    v1 = g.modPow(hash, p);
+	    // v2 = y^r * r^s mod p
+	    v2 = A.modPow(r, p).multiply(r.modPow(s, p)).mod(p);
+	    
+	    // Accept the signature if and only if v1 = v2
+	    return v1.equals(v2);
+	}
 }
