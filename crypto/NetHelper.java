@@ -165,9 +165,20 @@ public class NetHelper extends Thread {
 	public String getClientIP() {
 		return clientSocket.getInetAddress().getHostAddress().toString();
 	}
+	
+	
+	public String askForInput(String msg) {
+		String input;
+		while (true) {
+			send(msg);
+			input = receiveLine();
+			if (input != null & !input.equals(""))
+				return input;
+		}
+	}
 
 	public void run() {
-		String input;
+		String input, output = "";
 
 		// Hashing Service
 		if (service == "hash") {
@@ -185,24 +196,50 @@ public class NetHelper extends Thread {
 		}
 		// Elgamal Service
 		if (service == "elgamal") {
+			String msg = "";
+			String help = "The following commands are available: sign, verify, help, exit";
 			Elgamal elgamal = new Elgamal(keys);
-			send("Welcome to the Elgamal signing and verification service.\r"
-					+ " To sign a line enter 'sign <input>'; to verify a message enter the 'verify <r> <s> <input>' - h4v3 phun\n");
-
+			send("Welcome to the Elgamal signing and verification service.\n  " + help + "\n\n");
 			
-			//elgamal.sign(input.getBytes());
-			
-			
-			while ((input = receiveLine()) != null) {
-				if (!input.equals("")) {
-					String hash = lib.getHexHash("SHA-1", input.getBytes());
-					System.out.println(input + " / SHA-1: " + hash);
-					send(hash + "\n");
+			while (true) {
+				String command = askForInput("# "); 
+				if (command.startsWith("sign")) {
+					
+					msg = askForInput("message: ");
+					Signature signature = elgamal.sign(msg.getBytes());
+					output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS();
+					send(output + "\n\n");
 				}
+				if (command.startsWith("verify")) {
+					String r, s;
+					msg = askForInput("message: ");
+					r = askForInput("r: ");
+					s = askForInput("s: ");
+					
+					SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
+					
+					if (elgamal.verify(sm)) {
+						output = " > Signature is correct!";
+					}
+					else {
+						output = " > Signature is incorrect!";
+					}
+					send(output + "\n\n");					
+				}
+				if (command.startsWith("exit") | command.startsWith("quit")) {
+					send("Bye!\n");
+					System.exit(0);
+				}
+				if (command.startsWith("help")) {
+					send("Bye!\n");
+					System.exit(0);
+				}
+				
+				System.out.println(getClientIP() + " " + command + " " + msg + output);
 			}
 		}
 		
-
+		
 		System.out.println("Client disconnected; IP: " + getClientIP());
 		close();
 	}

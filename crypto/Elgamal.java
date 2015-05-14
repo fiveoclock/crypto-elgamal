@@ -229,16 +229,11 @@ public class Elgamal {
 			s = hash.subtract(a.multiply(r)).multiply(kInverse).mod(pMinusOne);
 		}
 		while (s.compareTo(zero) == 0);
-		
-	    System.out.println("Signature \n r: " + r + "\n s: " + s);
 	    return new Signature(r, s);
-	    // todo return signature
 	}
 
 	/**
-	 * @param r
-	 * @param s
-	 * @param msg
+	 * @param SignedMessage
 	 * @return
 	 * Verifies if the signature (r, s) fits to the message specified by msg
 	 */
