@@ -40,6 +40,7 @@ public class Crypto {
 			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
 			case "sign": 			c.checkArgs(4); c.elgamalSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
+			case "server": 			c.checkArgs(5);	c.netStartElgamalService(args[2], args[3]); break;
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
 		case "rsa": 			c.checkArgs(2); switch(args[1]) {
@@ -84,15 +85,29 @@ public class Crypto {
 	}
 	private void elgamalSign(String prefix, String message) {
 		elgamal.loadKeys(prefix);
-		elgamal.sign(message.getBytes());
+		Signature signature = elgamal.sign(message.getBytes());
+		System.out.println("Signature \n r: " + signature.getR() + "\n s: " + signature.getS());
 	}
 	private void elgamalVerify(String prefix, String r, String s, String message) {
 		elgamal.loadKeys(prefix);
-		if (elgamal.verify(r, s, message)) {
+		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r, s));
+		
+		if (elgamal.verify(sm)) {
 			System.out.println("> Correct!");
 		}
 		else {
 			System.out.println("> Incorrect!");
+		}
+	}
+	private void netStartElgamalService(String prefix, String port) {
+		if (net.listen(Integer.parseInt(port)) ) {
+			System.out.println("Listening on port: " + port);
+			
+			while (true) {
+				NetHelper serverThread = new NetHelper(net.acceptConnection(), "elgamal");
+				serverThread.start();
+				System.out.println("Client connected; IP: " + net.getClientIP());
+			}
 		}
 	}
 	private void elgamalEncrypt(String prefix, String message) {
@@ -157,7 +172,7 @@ public class Crypto {
 			System.out.println("Listening on port: " + port);
 			
 			while (true) {
-				NetHelper serverThread = new NetHelper(net.acceptConnection());
+				NetHelper serverThread = new NetHelper(net.acceptConnection(), "hash");
 				serverThread.start();
 				System.out.println("Client connected; IP: " + net.getClientIP());
 			}

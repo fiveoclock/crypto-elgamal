@@ -1,12 +1,20 @@
 package crypto;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author alex
  * Provides Elgamal key generation and handling, encryption and decryption
+ * 
+ * todo:
+	network code
+	split loading of keys - public and private
+	adapt bitlenght
+	document
+	split into separate project
+	read about which hash function to use
+	authentication / zero knowledge ???
+	 
  */
 public class Elgamal {
 	private static BigInteger zero = BigInteger.ZERO;
@@ -26,6 +34,15 @@ public class Elgamal {
 		fh = new FileHelper();
 	}
 	
+	/**
+	 * @param prefix
+	 * @return
+	 * Creates an instance of the class and loads the specified keys
+	 */
+	public Elgamal(String prefix) {
+		this();
+		loadKeys(prefix);
+	}	
 	
 	/**
 	 * Generates the keys
@@ -190,7 +207,7 @@ public class Elgamal {
 	 * @param data
 	 * Creates the signature (r,s) of the message specified by data
 	 */
-	public void sign(byte[] data) {
+	public Signature sign(byte[] data) {
 		BigInteger k, kInverse, r, hash, s;
 		
 		do {
@@ -214,6 +231,7 @@ public class Elgamal {
 		while (s.compareTo(zero) == 0);
 		
 	    System.out.println("Signature \n r: " + r + "\n s: " + s);
+	    return new Signature(r, s);
 	    // todo return signature
 	}
 
@@ -224,9 +242,9 @@ public class Elgamal {
 	 * @return
 	 * Verifies if the signature (r, s) fits to the message specified by msg
 	 */
-	public boolean verify(String r2, String s2, String msg) {
-		BigInteger r = new BigInteger(r2);
-		BigInteger s = new BigInteger(s2);
+	public boolean verify(SignedMessage sm) {
+		BigInteger r = sm.getSignature().getR();
+		BigInteger s = sm.getSignature().getS();
 		BigInteger hash, v1, v2;
 		
 		if (r.compareTo(one) == -1 || r.compareTo(pMinusOne) == 1) {
@@ -237,7 +255,7 @@ public class Elgamal {
 	    }
 	    
 	    // v1 = g^(h(m))
-	    hash = new BigInteger(lib.hash("SHA-1", msg.getBytes()));
+	    hash = new BigInteger(lib.hash("SHA-1", sm.getMsg()));
 	    v1 = g.modPow(hash, p);
 	    // v2 = y^r * r^s mod p
 	    v2 = A.modPow(r, p).multiply(r.modPow(s, p)).mod(p);

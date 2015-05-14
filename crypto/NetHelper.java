@@ -11,6 +11,8 @@ public class NetHelper extends Thread {
 	private LibCrypto lib = new LibCrypto();
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
+	private String service;
+	private String keys;
 	
 	private PrintWriter out;
 	private InputStreamReader insr;
@@ -20,10 +22,23 @@ public class NetHelper extends Thread {
 	
 	/**
 	 * @param socket
-	 * Constructor that takes a socket; for threaded use
+	 * @param service
+	 * Constructor; for threaded use
 	 */
-	public NetHelper(Socket sock) {
+	public NetHelper(Socket sock, String service) {
+		this(sock, service, null);
+	}
+	
+	/**
+	 * @param socket
+	 * @param service
+	 * @param keys
+	 * Constructor; for threaded use
+	 */
+	public NetHelper(Socket sock, String service, String keys) {
 		this.clientSocket = sock;
+		this.service = service;
+		this.keys = keys;
 		setupHandles(clientSocket);
 	}
 
@@ -152,18 +167,42 @@ public class NetHelper extends Thread {
 	}
 
 	public void run() {
-		send("Welcome to the crypto service.\r"
-				+ " Every line you send will be hashed with SHA-1 and sent back.\n"
-				+ " Be careful tough as everything is transmitted unencrypted, thus secret services will most likely capture this.\n");
+		String input;
 
-		String line;
-		while ((line = receiveLine()) != null) {
-			if (!line.equals("")) {
-				String hash = lib.getHexHash("SHA-1", line);
-				System.out.println(line + " / SHA-1: " + hash);
-				send(hash + "\n");
+		// Hashing Service
+		if (service == "hash") {
+			send("Welcome to the crypto service.\r"
+					+ " Every line you send will be hashed with SHA-1 and sent back.\n"
+					+ " Be careful tough as everything is transmitted unencrypted, thus secret services will most likely capture this.\n");
+
+			while ((input = receiveLine()) != null) {
+				if (!input.equals("")) {
+					String hash = lib.getHexHash("SHA-1", input.getBytes());
+					System.out.println(input + " / SHA-1: " + hash);
+					send(hash + "\n");
+				}
 			}
 		}
+		// Elgamal Service
+		if (service == "elgamal") {
+			Elgamal elgamal = new Elgamal(keys);
+			send("Welcome to the Elgamal signing and verification service.\r"
+					+ " To sign a line enter 'sign <input>'; to verify a message enter the 'verify <r> <s> <input>' - h4v3 phun\n");
+
+			
+			//elgamal.sign(input.getBytes());
+			
+			
+			while ((input = receiveLine()) != null) {
+				if (!input.equals("")) {
+					String hash = lib.getHexHash("SHA-1", input.getBytes());
+					System.out.println(input + " / SHA-1: " + hash);
+					send(hash + "\n");
+				}
+			}
+		}
+		
+
 		System.out.println("Client disconnected; IP: " + getClientIP());
 		close();
 	}
