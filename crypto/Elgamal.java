@@ -35,13 +35,13 @@ public class Elgamal {
 	}
 	
 	/**
-	 * @param prefix
+	 * @param keyprefix
 	 * @return
 	 * Creates an instance of the class and loads the specified keys
 	 */
-	public Elgamal(String prefix) {
+	public Elgamal(String keyprefix) {
 		this();
-		loadKeys(prefix);
+		loadKeys(keyprefix);
 	}	
 	
 	/**

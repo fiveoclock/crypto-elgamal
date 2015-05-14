@@ -4,9 +4,6 @@ import java.math.BigInteger;
 
 public class Crypto {
 	private LibCrypto lib = new LibCrypto();
-	private RSA rsa = new RSA();
-	private DSA dsa = new DSA();
-	private Elgamal elgamal = new Elgamal();
 	private CertHelper certH = new CertHelper();
 	private NetHelper net = new NetHelper();
 	private static int argsNum;
@@ -80,16 +77,17 @@ public class Crypto {
 
 	// Elgamal
 	private void elgamalGenerateKeys(String prefix) {
+		Elgamal elgamal = new Elgamal();
 		elgamal.generateKeys(24);
 		elgamal.saveKeys(prefix);
 	}
 	private void elgamalSign(String prefix, String message) {
-		elgamal.loadKeys(prefix);
+		Elgamal elgamal = new Elgamal(prefix);
 		Signature signature = elgamal.sign(message.getBytes());
 		System.out.println("Signature \n r: " + signature.getR() + "\n s: " + signature.getS());
 	}
 	private void elgamalVerify(String prefix, String r, String s, String message) {
-		elgamal.loadKeys(prefix);
+		Elgamal elgamal = new Elgamal(prefix);
 		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r, s));
 		
 		if (elgamal.verify(sm)) {
@@ -111,13 +109,13 @@ public class Crypto {
 		}
 	}
 	private void elgamalEncrypt(String prefix, String message) {
-		elgamal.loadKeys(prefix);
+		Elgamal elgamal = new Elgamal(prefix);
 		String c = elgamal.encrypt(new BigInteger(message.getBytes()));
 		System.out.println("Ciphertext (B, C): " + c);
 		//System.out.println("\nTesting decryption (m'): " + elgamal.decrypt(c));
 	}
 	private void elgamalDecrypt(String prefix, String b, String c) {
-		elgamal.loadKeys(prefix);
+		Elgamal elgamal = new Elgamal(prefix);
 		BigInteger B, C;
 		B = new BigInteger(b);
 		C  = new BigInteger(c);
@@ -129,34 +127,36 @@ public class Crypto {
 	
 	// RSA
 	private void rsaGenerateKeys(String prefix) {
+		RSA rsa = new RSA();
 		rsa.generateKeys(2048);
 		rsa.saveKeys(prefix);
 	}
 	private void rsaEncrypt(String prefix, String message) {
-		rsa.loadKeys(prefix);
+		RSA rsa = new RSA(prefix);
 		String c = rsa.encrypt(message);
 		System.out.println("Ciphertext (c): " + c);
 		
 		System.out.println("\nTesting decryption (m'): " + rsa.decrypt(c));
 	}
 	private void rsaDecrypt(String prefix, String cipher) {
-		rsa.loadKeys(prefix);
+		RSA rsa = new RSA(prefix);
 		String m = rsa.decrypt(cipher);
 		System.out.println("Decrypted message (m'): " + m);
 	}
 
 	// DSA
 	private void dsaGenerateKeys(String prefix) {
+		DSA dsa = new DSA();
 		dsa.generateKeys();
 		dsa.saveKeys(prefix);
 	}
 	private void dsaSign(String prefix, String message) {
-		dsa.loadKeys(prefix);
+		DSA dsa = new DSA(prefix);
 		Signature signature = dsa.sign(message.getBytes());
 		System.out.println("Signature \n r: " + signature.getR() + "\n s: " + signature.getS());
 	}
 	private void dsaVerify(String prefix, String r, String s, String message) {
-		dsa.loadKeys(prefix);
+		DSA dsa = new DSA(prefix);
 		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r, s));
 		if (dsa.verify(sm)) {
 			System.out.println("> Correct!");

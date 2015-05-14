@@ -17,6 +17,11 @@ public class RSA {
 	public RSA() {
 		lib = new LibCrypto();
 	}
+
+	public RSA(String keyprefix) {
+		this();
+		loadKeys(keyprefix);
+	}
 	
 	/**
 	 * @param length

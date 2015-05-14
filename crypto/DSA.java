@@ -23,7 +23,12 @@ public class DSA {
 		lib = new LibCrypto();
 		fh = new FileHelper();
 	}
-	
+
+	public DSA(String keyprefix) {
+		this();
+		loadKeys(keyprefix);
+	}
+
 	/**
 	 * Generates the DSA keys in order to be able to sign and verify messages later
 	 */
