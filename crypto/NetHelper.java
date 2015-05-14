@@ -196,15 +196,14 @@ public class NetHelper extends Thread {
 		}
 		// Elgamal Service
 		if (service == "elgamal") {
+			Elgamal elgamal = new Elgamal(keys);
 			String msg = "";
 			String help = "The following commands are available: sign, verify, help, exit";
-			Elgamal elgamal = new Elgamal(keys);
-			send("Welcome to the Elgamal signing and verification service.\n  " + help + "\n\n");
 			
+			send("Welcome to the Elgamal signing and verification service.\n  " + help + "\n\n");
 			while (true) {
 				String command = askForInput("# "); 
 				if (command.startsWith("sign")) {
-					
 					msg = askForInput("message: ");
 					Signature signature = elgamal.sign(msg.getBytes());
 					output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS();
@@ -215,9 +214,8 @@ public class NetHelper extends Thread {
 					msg = askForInput("message: ");
 					r = askForInput("r: ");
 					s = askForInput("s: ");
-					
+
 					SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
-					
 					if (elgamal.verify(sm)) {
 						output = " > Signature is correct!";
 					}
@@ -234,12 +232,9 @@ public class NetHelper extends Thread {
 					send("Bye!\n");
 					System.exit(0);
 				}
-				
 				System.out.println(getClientIP() + " " + command + " " + msg + output);
 			}
 		}
-		
-		
 		System.out.println("Client disconnected; IP: " + getClientIP());
 		close();
 	}

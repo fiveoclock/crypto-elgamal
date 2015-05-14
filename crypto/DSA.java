@@ -127,11 +127,10 @@ public class DSA {
 	}
 	
 	/**
-	 * @param msg
+	 * @param data
 	 * Creates the signature (r,s) of the message specified by msg
 	 */
-	public void sign(String msg) {
-		byte[] data = msg.getBytes();
+	public Signature sign(byte[] data) {
 		BigInteger k, r, s;
 		
 		do {
@@ -141,14 +140,12 @@ public class DSA {
 			    	k = new BigInteger(q.bitCount(), lib.getRandom());
 		        }
 			    while (k.compareTo(zero) == 0);
-			    System.out.println("k: "+k);
 			    
 			    // Calculate r = (g^k mod p) mod q
 			    // in the unlikely case that r=0, start again with a different random k
 				r = g.modPow(k, p).mod(q);
 			}
 			while (r.compareTo(zero) == 0);
-			System.out.println("r: "+r);
 			
 			// Calculate s = k^-1 (H(m) + xr) mod q
 		    MessageDigest md;
@@ -163,20 +160,18 @@ public class DSA {
 		    }
 		}
 		while (s.compareTo(zero) == 0);
-	    System.out.println("s: "+s);
+	    return new Signature(r, s);
 	}
 
 	/**
-	 * @param r
-	 * @param s
-	 * @param msg
+	 * @param sm
 	 * @return
 	 * Verifies if the signature (r, s) fits to the message specified by msg
 	 */
-	public boolean verify(String r2, String s2, String msg) {
-		BigInteger r = new BigInteger(r2);
-		BigInteger s = new BigInteger(s2);
-		
+	public boolean verify(SignedMessage sm) {
+		BigInteger r = sm.getSignature().getR();
+		BigInteger s = sm.getSignature().getS();
+
 		if (r.compareTo(BigInteger.ZERO) <= 0 || r.compareTo(q) >= 0) {
 	        return false;
 	    }
@@ -187,7 +182,7 @@ public class DSA {
 	    BigInteger v = BigInteger.ZERO;
 	    try {
 	        md = MessageDigest.getInstance("SHA-1");
-	        md.update(msg.getBytes());
+	        md.update(sm.getMsg());
 	        BigInteger hash = new BigInteger(md.digest());
 	        BigInteger w = s.modInverse(q);
 	        BigInteger u1 = hash.multiply(w).mod(q);

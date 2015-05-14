@@ -152,18 +152,19 @@ public class Crypto {
 	}
 	private void dsaSign(String prefix, String message) {
 		dsa.loadKeys(prefix);
-		dsa.sign(message);
+		Signature signature = dsa.sign(message.getBytes());
+		System.out.println("Signature \n r: " + signature.getR() + "\n s: " + signature.getS());
 	}
 	private void dsaVerify(String prefix, String r, String s, String message) {
 		dsa.loadKeys(prefix);
-		if (dsa.verify(r, s, message)) {
+		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r, s));
+		if (dsa.verify(sm)) {
 			System.out.println("> Correct!");
 		}
 		else {
 			System.out.println("> Incorrect!");
 		}
 	}
-
 
 	
 	// Networking

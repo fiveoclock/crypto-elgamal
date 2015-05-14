@@ -235,7 +235,7 @@ public class Elgamal {
 	/**
 	 * @param SignedMessage
 	 * @return
-	 * Verifies if the signature (r, s) fits to the message specified by msg
+	 * Verifies if the supplied SignedMessage can be verified
 	 */
 	public boolean verify(SignedMessage sm) {
 		BigInteger r = sm.getSignature().getR();
