@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 public class Crypto {
 	private LibCrypto lib = new LibCrypto();
-	private CertHelper certH = new CertHelper();
 	private NetHelper net = new NetHelper();
 	private static int argsNum;
 
@@ -109,19 +108,22 @@ public class Crypto {
 			// must often be called multiple times because it doesn't return 
 			// the welcome message the first time (race-condition); alternative
 			// lib.sleep(100);  // give the server some time to prepare the welcome message :/
-			String rec = net.receive();
-			while (rec.equals("")) {
-				rec = net.receive();
-			}
-			System.out.println(rec);
 			
-			String line;
-			while ((line = System.console().readLine()) != null) {
-				if (!line.equals("")) {
-					net.send(line+"\n");
-					System.out.println(net.receiveLine());
-				}
+			String rec;
+			do {
+				rec = net.receiveLine();
+				System.out.println(rec);
 			}
+			while ( !rec.equals("") );
+			
+			net.send("sign\n");
+			net.send("hallo\n");
+			
+			do {
+				rec = net.receiveLine();
+				System.out.println(rec);
+			}
+			while ( !rec.equals("") );
 		}
 	}
 	
