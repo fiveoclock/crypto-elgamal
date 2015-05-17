@@ -206,8 +206,8 @@ public class NetHelper extends Thread {
 				if (command.startsWith("sign")) {
 					msg = askForInput("message: ");
 					Signature signature = elgamal.sign(msg.getBytes());
-					output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS();
-					send(output + "\n\n");
+					output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
+					send(output + "\n");
 				}
 				if (command.startsWith("verify")) {
 					String r, s;
@@ -222,7 +222,7 @@ public class NetHelper extends Thread {
 					else {
 						output = " > Signature is incorrect!";
 					}
-					send(output + "\n\n");					
+					send(output + "\n");
 				}
 				if (command.startsWith("exit") | command.startsWith("quit")) {
 					send("Bye!\n");
@@ -232,7 +232,7 @@ public class NetHelper extends Thread {
 					send("Bye!\n");
 					System.exit(0);
 				}
-				System.out.println(getClientIP() + " " + command + " " + msg + output);
+				System.out.println(getClientIP() + " " + command + " " + msg);
 			}
 		}
 		System.out.println("Client disconnected; IP: " + getClientIP());

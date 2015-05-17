@@ -118,7 +118,7 @@ public class Crypto {
 		Elgamal elgamal = new Elgamal(prefix);
 		BigInteger B, C;
 		B = new BigInteger(b);
-		C  = new BigInteger(c);
+		C = new BigInteger(c);
 		
 		String m = elgamal.decrypt(B, C);
 		System.out.println("Decrypted message (m'): " + m);

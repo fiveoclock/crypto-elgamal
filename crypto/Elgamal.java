@@ -19,7 +19,7 @@ import java.math.BigInteger;
 public class Elgamal {
 	private static BigInteger zero = BigInteger.ZERO;
 	private static BigInteger one = BigInteger.ONE;
-	private static BigInteger two = BigInteger.valueOf(2);
+	private static BigInteger two = BigInteger.valueOf(2);		
 	private static int primeCertainty = 20;
 
 	private LibCrypto lib;
