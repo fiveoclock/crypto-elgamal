@@ -222,13 +222,13 @@ public class NetHelper extends Thread {
 					else {
 						output = " > Signature is incorrect!";
 					}
-					send(output + "\n");
-				}
-				if (command.startsWith("exit") | command.startsWith("quit")) {
-					send("Bye!\n");
-					System.exit(0);
+					send(output + "\n\n");
 				}
 				if (command.startsWith("help")) {
+					send(help + "\n\n");
+					System.exit(0);
+				}
+				if (command.startsWith("exit") | command.startsWith("quit")) {
 					send("Bye!\n");
 					System.exit(0);
 				}

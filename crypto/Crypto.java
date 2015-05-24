@@ -42,7 +42,7 @@ public class Crypto {
 	// Elgamal
 	private void elgamalGenerateKeys(String prefix) {
 		Elgamal elgamal = new Elgamal();
-		elgamal.generateKeys(24);
+		elgamal.generateKeys(1024);
 		elgamal.saveKeys(prefix);
 	}
 	private void elgamalSign(String prefix, String message) {
