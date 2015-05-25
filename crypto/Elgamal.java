@@ -165,6 +165,33 @@ public class Elgamal {
 	 * Loads the previously saved keys
 	 */
 	public boolean loadKeys(String prefix) {
+		if (loadPublicKey(prefix) && loadPrivateKey(prefix)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * @param prefix
+	 * @return
+	 * Loads the private key
+	 */
+	public boolean loadPrivateKey(String prefix) {
+		a = new BigInteger(fh.readLine("elgamal."+prefix+".priv"));
+		System.out.println("Private key: ");
+		System.out.println("a: " + a);
+		System.out.println("--------------------------");
+		return true;
+	}
+	
+	/**
+	 * @param prefix
+	 * @return
+	 * Loads the public key of the user defined by prefix
+	 */
+	public boolean loadPublicKey(String prefix) {
 		a = new BigInteger(fh.readLine("elgamal."+prefix+".priv"));
 		
 		String pub = fh.readLine("elgamal."+prefix+".pub");
@@ -175,9 +202,6 @@ public class Elgamal {
 		// calculate p-1
 		pMinusOne = p.subtract(one);
 		
-		// Print keys
-		System.out.println("Private key: ");
-		System.out.println("a: " + a);
 		System.out.println("\nPublic key: ");
 		System.out.println("p: " + p);
 		System.out.println("g: " + g);
