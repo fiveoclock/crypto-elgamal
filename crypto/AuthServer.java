@@ -1,6 +1,5 @@
 package crypto;
 
-import java.io.*;
 import java.net.*;
 
 /**
@@ -8,15 +7,10 @@ import java.net.*;
  * This class combines various methods that are needed for both servers and clients
  */
 public class AuthServer extends Thread {
-	private LibCrypto lib = new LibCrypto();
 	private NetHelper net = new NetHelper();
-	private ServerSocket serverSocket;
 	private Socket clientSocket;
 	private String keys;
 	
-	private PrintWriter out;
-	private InputStreamReader insr;
-	private BufferedReader inbr;
 
 	public AuthServer() { }
 	
@@ -25,20 +19,9 @@ public class AuthServer extends Thread {
 	 * Constructor; for threaded use
 	 */
 	public AuthServer(Socket sock) {
-		this(sock, null);
-	}
-	
-	/**
-	 * @param socket
-	 * @param keys
-	 * Constructor; for threaded use
-	 */
-	public AuthServer(Socket sock, String keys) {
 		this.clientSocket = sock;
-		this.keys = keys;
 		net.setupHandles(clientSocket);
 	}
-	
 	
 	public String askForInput(String msg) {
 		String input;
@@ -80,7 +63,7 @@ public class AuthServer extends Thread {
 				net.send(output + "\n\n");
 			}
 			if (command.startsWith("help")) {
-				net.send(help + "\n\n");
+				net.send("\n\n");
 			}
 			if (command.startsWith("exit") | command.startsWith("quit")) {
 				net.send("Bye!\n");

@@ -29,7 +29,6 @@ public class Crypto {
 			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
 			case "auth-server":		c.checkArgs(3); c.elgamalAuthServer(args[2]); break;
 			case "auth-client":		c.checkArgs(4);	c.elgamalAuthClient(args[2], args[3]); break;
-			}
 			case "service": 		c.checkArgs(4);	c.netStartElgamalService(args[2], args[3]); break;
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
@@ -69,7 +68,7 @@ public class Crypto {
 			System.out.println("Listening on port: " + port);
 			
 			while (true) {
-				NetHelper serverThread = new NetHelper(net.acceptConnection(), "elgamal");
+				NetHelper serverThread = new AuthServer(net.acceptConnection() );
 				serverThread.start();
 				System.out.println("Client connected; IP: " + net.getClientIP());
 			}
