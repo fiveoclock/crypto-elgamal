@@ -1,6 +1,7 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.util.Random;
 
 /**
  * @author alex
@@ -16,10 +17,6 @@ import java.math.BigInteger;
 	authentication / zero knowledge ???
 	
 	generate a and g without lower length limit
-	
-	faster key generation:
-		- first search primes with log primecertainty 
-		- if two are found check again with higher certainty
  */
 public class Elgamal {
 	private static BigInteger zero = BigInteger.ZERO;
@@ -55,12 +52,30 @@ public class Elgamal {
 	public void generateKeys(int length) {
 		System.out.print("Calculating domain parameters p and q ");
 		BigInteger q;
+		/*
+		BigInteger low = new BigInteger(520, lib.getRandom());;
+		BigInteger max = BigInteger.ZERO;
+		Random rand = new Random(); 
+		do {
+			g = new BigInteger(64, rand);
+			//System.out.print(".");
+			if (g.compareTo(low) == -1) {
+				low = g;
+				System.out.println("low " + low.bitLength() + ": " + low);
+			}
+			if (g.compareTo(max) == 1) {
+				max = g;
+				System.out.println("max " + max.bitLength() + ": " + max);
+			}
+		}
+		while (true); */
+		
 		do {
 			q = BigInteger.probablePrime(length-1, lib.getRandom());
 			p = q.multiply(two).add(one);
 			System.out.print(".");
 		}
-		while (!p.isProbablePrime(primeCertainty));
+		while (!q.multiply(two).add(one).isProbablePrime(primeCertainty));
 		System.out.println("\np: " + p + " Bitlength: " + p.bitLength());
 		System.out.println("q: " + q);
 		pMinusOne = p.subtract(one);
@@ -71,7 +86,7 @@ public class Elgamal {
 		do {
 			g = new BigInteger(length-lib.randInt(length-1), lib.getRandom());
 			
-			// Calculate a generator - Algorithm 4.86
+			// Determine a generator - Algorithm 4.86
 			// if the term   g ^ ((p-1)/q)
 			// is not 1 then it is a generator.
 			// From the previous calculation we know that (p-1)/q = 2
@@ -257,7 +272,7 @@ public class Elgamal {
 	    // v1 = g^(h(m))
 	    hash = new BigInteger(lib.hash("SHA-256", sm.getMsg()));
 	    v1 = g.modPow(hash, p);
-	    // v2 = y^r * r^s mod p
+	    // v2 = A^r * r^s mod p
 	    v2 = A.modPow(r, p).multiply(r.modPow(s, p)).mod(p);
 	    
 	    // Accept the signature if and only if v1 = v2

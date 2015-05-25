@@ -42,7 +42,7 @@ public class Crypto {
 	// Elgamal
 	private void elgamalGenerateKeys(String prefix) {
 		Elgamal elgamal = new Elgamal();
-		elgamal.generateKeys(1024);
+		elgamal.generateKeys(2048);
 		elgamal.saveKeys(prefix);
 	}
 	private void elgamalSign(String prefix, String message) {
@@ -112,18 +112,46 @@ public class Crypto {
 			String rec;
 			do {
 				rec = net.receiveLine();
-				System.out.println(rec);
 			}
 			while ( !rec.equals("") );
 			
+			// Signing
+			System.out.println("Sending signing request");
 			net.send("sign\n");
 			net.send("hallo\n");
 			
+			String r = ""; 
+			String s = "";
 			do {
 				rec = net.receiveLine();
+				if (rec.startsWith(" r: ")) {
+					r = rec.substring(4);
+				}
+				if (rec.startsWith(" s: ")) {
+					s = rec.substring(4);
+				}
 				System.out.println(rec);
 			}
 			while ( !rec.equals("") );
+			System.out.println("Received signature");
+			
+			// Verficication
+			System.out.println("Sending verification request");
+			net.send("verify\n");
+			net.send("hallo\n");
+			net.send(r+"\n");
+			net.send(s+"\n");
+			rec = net.receiveLine();
+			if (rec.equals(" > Signature is correct!")) {
+				System.out.println(rec);
+			}
+			else if (rec.equals(" > Signature is correct!")) {
+				System.out.println(rec);
+			}
+			else {
+				System.out.println("ERROR: " + rec);
+			}
+			System.out.println("Received signature");
 		}
 	}
 	
