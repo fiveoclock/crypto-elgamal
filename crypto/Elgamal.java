@@ -235,7 +235,8 @@ public class Elgamal {
 	}
 
 	/**
-	 * @param cipher
+	 * @param B
+	 * @param C
 	 * @return
 	 * Decrypts the ciphertext specifeid by cipher into cleartext
 	 */

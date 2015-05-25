@@ -27,6 +27,9 @@ public class Crypto {
 			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
 			case "sign": 			c.checkArgs(4); c.elgamalSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
+			case "auth-server":		c.checkArgs(3); c.elgamalAuthServer(args[2]); break;
+			case "auth-client":		c.checkArgs(4);	c.elgamalAuthClient(args[2], args[3]); break;
+			}
 			case "service": 		c.checkArgs(4);	c.netStartElgamalService(args[2], args[3]); break;
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
@@ -61,6 +64,77 @@ public class Crypto {
 			System.out.println("> Incorrect!");
 		}
 	}
+	private void elgamalAuthServer(String port) {
+		if (net.listen(Integer.parseInt(port)) ) {
+			System.out.println("Listening on port: " + port);
+			
+			while (true) {
+				NetHelper serverThread = new NetHelper(net.acceptConnection(), "elgamal");
+				serverThread.start();
+				System.out.println("Client connected; IP: " + net.getClientIP());
+			}
+		}
+	}
+	
+	private void elgamalAuthClient(String host, String port) {
+		if (net.connect(host, Integer.parseInt(port)) ) {
+			System.out.println("Connected to " + host + ":" + port);
+			
+			long start_time, end_time;
+			long time1, time2;
+
+			String rec;
+			do {
+				rec = net.receiveLine();
+			}
+			while ( !rec.equals("") );
+			
+			// Signing
+			System.out.println("Sending signing request for message: ");
+			net.send("sign\n");
+			start_time = System.nanoTime();
+			
+			String r = ""; 
+			String s = "";
+			do {
+				rec = net.receiveLine();
+				if (rec.startsWith(" r: ")) {
+					r = rec.substring(4);
+				}
+				if (rec.startsWith(" s: ")) {
+					s = rec.substring(4);
+				}
+			}
+			while ( !rec.equals("") );
+			end_time = System.nanoTime();
+			time1 = (end_time - start_time)/1000/1000;
+			System.out.println("Received signature\n");
+			
+			// Verficication
+			System.out.println("Sending verification request");
+			net.send("verify\n");
+			net.send(r+"\n");
+			net.send(s+"\n");
+			start_time = System.nanoTime();
+			
+			rec = net.receiveLine();
+			if (rec.endsWith(" > Signature is correct!")) {
+				System.out.println(" > correct");
+			}
+			else if (rec.endsWith(" > Signature is incorrect!")) {
+				System.out.println(" > not correct!");
+			}
+			else {
+				System.out.println("ERROR: " + rec);
+			}
+			end_time = System.nanoTime();
+			time2 = (end_time - start_time)/1000/1000;
+			
+			net.send("exit\n");
+			System.out.println("\nRequired time in ms: \nSigning: " + time1 + "\nVerifying: " + time2);
+		}
+	}
+	
 	private void netStartElgamalService(String prefix, String port) {
 		if (net.listen(Integer.parseInt(port)) ) {
 			System.out.println("Listening on port: " + port);

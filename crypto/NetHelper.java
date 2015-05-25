@@ -97,7 +97,7 @@ public class NetHelper extends Thread {
 	 * @return
 	 * Creates readers and writers from the given socket 
 	 */
-	private boolean setupHandles(Socket sock) {
+	public boolean setupHandles(Socket sock) {
 		try {
 			out = new PrintWriter(sock.getOutputStream(), true);
 			insr = new InputStreamReader(sock.getInputStream());
