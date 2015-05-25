@@ -226,11 +226,10 @@ public class NetHelper extends Thread {
 				}
 				if (command.startsWith("help")) {
 					send(help + "\n\n");
-					System.exit(0);
 				}
 				if (command.startsWith("exit") | command.startsWith("quit")) {
 					send("Bye!\n");
-					System.exit(0);
+					return;
 				}
 				System.out.println(getClientIP() + " " + command + " " + msg);
 			}

@@ -18,7 +18,7 @@ public class Crypto {
 		case "hash": 			c.checkArgs(3); c.hash(args[1], args[2]); break;
 		case "network":			c.checkArgs(2); switch(args[1]) {
 			case "server":			c.checkArgs(3);	c.netServer(args[2]); break;
-			case "client":			c.checkArgs(4);	c.netClient(args[2], args[3]); break;
+			case "client":			c.checkArgs(5);	c.netClient(args[2], args[3], args[4]); break;
 			default: 				printUsage("Unknown command in network");
 			} break;
 		case "elgamal": 		c.checkArgs(2); switch(args[1]) {
@@ -101,14 +101,16 @@ public class Crypto {
 			}
 		}
 	}
-	private void netClient(String host, String port) {
+	private void netClient(String host, String port, String message) {
 		if (net.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
-
-			// must often be called multiple times because it doesn't return 
-			// the welcome message the first time (race-condition); alternative
-			// lib.sleep(100);  // give the server some time to prepare the welcome message :/
 			
+			// remove newline and carriage return characters from message
+			message = message.replace("\n", "").replace("\r", "");
+			
+			long start_time, end_time;
+			long time1, time2;
+
 			String rec;
 			do {
 				rec = net.receiveLine();
@@ -116,9 +118,10 @@ public class Crypto {
 			while ( !rec.equals("") );
 			
 			// Signing
-			System.out.println("Sending signing request");
+			System.out.println("Sending signing request for message: \"" + message + "\"");
 			net.send("sign\n");
-			net.send("hallo\n");
+			net.send(message + "\n");
+			start_time = System.nanoTime();
 			
 			String r = ""; 
 			String s = "";
@@ -130,31 +133,37 @@ public class Crypto {
 				if (rec.startsWith(" s: ")) {
 					s = rec.substring(4);
 				}
-				System.out.println(rec);
 			}
 			while ( !rec.equals("") );
-			System.out.println("Received signature");
+			end_time = System.nanoTime();
+			time1 = (end_time - start_time)/1000/1000;
+			System.out.println("Received signature\n");
 			
 			// Verficication
 			System.out.println("Sending verification request");
 			net.send("verify\n");
-			net.send("hallo\n");
+			net.send(message + "\n");
 			net.send(r+"\n");
 			net.send(s+"\n");
+			start_time = System.nanoTime();
+			
 			rec = net.receiveLine();
-			if (rec.equals(" > Signature is correct!")) {
-				System.out.println(rec);
+			if (rec.endsWith(" > Signature is correct!")) {
+				System.out.println(" > correct");
 			}
-			else if (rec.equals(" > Signature is correct!")) {
-				System.out.println(rec);
+			else if (rec.endsWith(" > Signature is incorrect!")) {
+				System.out.println(" > not correct!");
 			}
 			else {
 				System.out.println("ERROR: " + rec);
 			}
-			System.out.println("Received signature");
+			end_time = System.nanoTime();
+			time2 = (end_time - start_time)/1000/1000;
+			
+			net.send("exit\n");
+			System.out.println("\nRequired time in ms: \nSigning: " + time1 + "\nVerifying: " + time2);
 		}
 	}
-	
 
 	// general methods
 	private void checkArgs(int required) {
