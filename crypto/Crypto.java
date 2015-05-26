@@ -26,7 +26,7 @@ public class Crypto {
 			case "sign": 			c.checkArgs(4); c.elgamalSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
 			case "auth-server":		c.checkArgs(3); c.elgamalAuthServer(args[2]); break;
-			case "auth-client":		c.checkArgs(4);	c.elgamalAuthClient(args[2], args[3]); break;
+			case "auth-client":		c.checkArgs(5);	c.elgamalAuthClient(args[2], args[3], args[4]); break;
 			case "service": 		c.checkArgs(4);	c.netStartElgamalService(args[2], args[3]); break;
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
@@ -75,63 +75,16 @@ public class Crypto {
 		}
 	}
 	
-	private void elgamalAuthClient(String host, String port) {
-		NetHelper net = new NetHelper();
-		if (net.connect(host, Integer.parseInt(port)) ) {
+	private void elgamalAuthClient(String host, String port, String username) {
+		AuthClient client = new AuthClient(username);
+		if (client.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
 			
 			long start_time, end_time;
 			long time1, time2;
 
-			String rec;
-			do {
-				rec = net.receiveLine();
-			}
-			while ( !rec.equals("") );
-			
-			// Signing
-			System.out.println("Sending signing request for message: ");
-			net.send("sign\n");
-			start_time = System.nanoTime();
-			
-			String r = ""; 
-			String s = "";
-			do {
-				rec = net.receiveLine();
-				if (rec.startsWith(" r: ")) {
-					r = rec.substring(4);
-				}
-				if (rec.startsWith(" s: ")) {
-					s = rec.substring(4);
-				}
-			}
-			while ( !rec.equals("") );
+			client.authenticate();
 			end_time = System.nanoTime();
-			time1 = (end_time - start_time)/1000/1000;
-			System.out.println("Received signature\n");
-			
-			// Verficication
-			System.out.println("Sending verification request");
-			net.send("verify\n");
-			net.send(r+"\n");
-			net.send(s+"\n");
-			start_time = System.nanoTime();
-			
-			rec = net.receiveLine();
-			if (rec.endsWith(" > Signature is correct!")) {
-				System.out.println(" > correct");
-			}
-			else if (rec.endsWith(" > Signature is incorrect!")) {
-				System.out.println(" > not correct!");
-			}
-			else {
-				System.out.println("ERROR: " + rec);
-			}
-			end_time = System.nanoTime();
-			time2 = (end_time - start_time)/1000/1000;
-			
-			net.send("exit\n");
-			System.out.println("\nRequired time in ms: \nSigning: " + time1 + "\nVerifying: " + time2);
 		}
 	}
 	
