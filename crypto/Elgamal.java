@@ -8,14 +8,8 @@ import java.util.Random;
  * Provides Elgamal key generation and handling, encryption and decryption
  * 
  * todo:
-	network code
-	split loading of keys - public and private
 	adapt bitlenght
 	document
-	split into separate project
-	read about which hash function to use
-	authentication / zero knowledge ???
-	
 	generate a and g without lower length limit
  */
 public class Elgamal {

@@ -27,17 +27,6 @@ public class AuthServer extends Thread {
 		this.socket = sock;
 	}
 	
-	private void sendFail(AuthMsg msg) {
-		msg.setStage(AuthMsg.AUTH_FAILED);
-		try {
-			outStream.writeObject(msg);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return;
-	}
-
 	public void run() {
         try {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
