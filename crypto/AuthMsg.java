@@ -25,6 +25,12 @@ public class AuthMsg implements Serializable {
 		this.challenge = new SignedMessage(challenge.getBytes());
 	}
 	
+	public AuthMsg(String username, SignedMessage response) {
+		this.stage = RESPONSE;
+		this.username = username;
+		this.challenge = response;
+	}
+	
 	public int getStage() {
 		return stage;
 	}

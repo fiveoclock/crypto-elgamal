@@ -31,6 +31,7 @@ public class AuthServer extends Thread {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 	        inStream = new ObjectInputStream(socket.getInputStream());
 	        
+	        // generate and send stage 1 authentication message
 	        BigInteger rand = new BigInteger(64, new Random());
 	        String hostname = InetAddress.getLocalHost().getHostName();
 	        String challenge = System.currentTimeMillis() + "." + rand + "@" + hostname;
@@ -39,7 +40,7 @@ public class AuthServer extends Thread {
 	        AuthMsg stage1 = new AuthMsg(challenge);
 	        outStream.writeObject(stage1);
 			
-	        // receive auth stage 2
+	        // receive stage 2 authentication message
 	        AuthMsg stage2 = (AuthMsg) inStream.readObject();
 	        // sanity checks
 	        if (stage2.getStage() != AuthMsg.RESPONSE) {
