@@ -9,15 +9,12 @@ import java.util.Random;
 
 /**
  * @author alex
- * This class combines various methods that are needed for both servers and clients
+ * 
  */
 public class AuthServer extends Thread {
-	private NetHelper net = new NetHelper();
 	private Socket socket;
-	
 	private ObjectInputStream inStream;
 	private ObjectOutputStream outStream;
-	
 
 	public AuthServer() { }
 	
@@ -27,16 +24,6 @@ public class AuthServer extends Thread {
 	 */
 	public AuthServer(Socket sock) {
 		this.socket = sock;
-	}
-	
-	public String askForInput(String msg) {
-		String input;
-		while (true) {
-			net.send(msg);
-			input = net.receiveLine();
-			if (input != null & !input.equals(""))
-				return input;
-		}
 	}
 
 	public void run() {
