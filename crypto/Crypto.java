@@ -3,8 +3,6 @@ package crypto;
 import java.math.BigInteger;
 
 public class Crypto {
-	private LibCrypto lib = new LibCrypto();
-	private NetHelper net = new NetHelper();
 	private static int argsNum;
 
     public Crypto() { }
@@ -38,6 +36,7 @@ public class Crypto {
 	
 	// Hashing
 	private void hash(String func, String text) {
+		LibCrypto lib = new LibCrypto();
 		System.out.println(lib.getHexHash(func, text.getBytes()));
 	}
 
@@ -64,11 +63,12 @@ public class Crypto {
 		}
 	}
 	private void elgamalAuthServer(String port) {
+		NetHelper net = new NetHelper();
 		if (net.listen(Integer.parseInt(port)) ) {
 			System.out.println("Listening on port: " + port);
 			
 			while (true) {
-				NetHelper serverThread = new AuthServer(net.acceptConnection() );
+				AuthServer serverThread = new AuthServer(net.acceptConnection() );
 				serverThread.start();
 				System.out.println("Client connected; IP: " + net.getClientIP());
 			}
@@ -76,6 +76,7 @@ public class Crypto {
 	}
 	
 	private void elgamalAuthClient(String host, String port) {
+		NetHelper net = new NetHelper();
 		if (net.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
 			
@@ -135,6 +136,7 @@ public class Crypto {
 	}
 	
 	private void netStartElgamalService(String prefix, String port) {
+		NetHelper net = new NetHelper();
 		if (net.listen(Integer.parseInt(port)) ) {
 			System.out.println("Listening on port: " + port);
 			
@@ -164,6 +166,7 @@ public class Crypto {
 	
 	// Networking
 	private void netServer(String port) {
+		NetHelper net = new NetHelper();
 		if (net.listen(Integer.parseInt(port)) ) {
 			System.out.println("Listening on port: " + port);
 			
@@ -175,6 +178,7 @@ public class Crypto {
 		}
 	}
 	private void netClient(String host, String port, String message) {
+		NetHelper net = new NetHelper();
 		if (net.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
 			
