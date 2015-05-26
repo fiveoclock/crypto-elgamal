@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -25,19 +26,34 @@ public class AuthServer extends Thread {
 	public AuthServer(Socket sock) {
 		this.socket = sock;
 	}
+	
+	private void sendFail(AuthMsg msg) {
+		msg.setStage(AuthMsg.AUTH_FAILED);
+		try {
+			outStream.writeObject(msg);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return;
+	}
 
 	public void run() {
         try {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 	        inStream = new ObjectInputStream(socket.getInputStream());
 	        
+	        boolean fail = false;
+	        
 	        // generate and send stage 1 authentication message
 	        BigInteger rand = new BigInteger(64, new Random());
 	        String hostname = InetAddress.getLocalHost().getHostName();
 	        String challenge = System.currentTimeMillis() + "." + rand + "@" + hostname;
-	        System.out.println("Generated challenge: " + challenge);
+	        byte[] array = challenge.getBytes("UTF-8");
+	        String d = new String(array);
+	        System.out.println("Generated challenge: " + d);
 	        
-	        AuthMsg stage1 = new AuthMsg(challenge);
+	        AuthMsg stage1 = new AuthMsg(array);
 	        outStream.writeObject(stage1);
 			
 	        // receive stage 2 authentication message
@@ -45,38 +61,46 @@ public class AuthServer extends Thread {
 	        // sanity checks
 	        if (stage2.getStage() != AuthMsg.RESPONSE) {
 	        	System.out.println("Incorrect auth state received");
-	        	return;
+	        	fail = true;
 	        }
 	        if (stage2.getChallenge() == null || stage2.getUsername() == null) {
 	        	System.out.println("Malformed message");
-	        	return;
+	        	fail = true;
 	        }
-	        if ( !stage2.getChallenge().getMsg().equals(challenge)) {
-	        	System.out.println("Modified challenge received");
-	        	return;
+	        if ( !Arrays.equals(stage2.getChallenge().getMsg(), array) ) {
+	        	System.out.println("Modified challenge received" + new String());
+	        	fail = true;
 	        }
 	        // safety measures
-	        if ( !stage2.getUsername().matches("[^a-zA-Z0-9_\\-\\.]")) {
-	        	System.out.println("Illegal username received");
-	        	return;
+	        if ( stage2.getUsername().matches("[^a-zA-Z0-9_\\-\\.]")) {
+	        	System.out.println("Illegal username received" + stage2.getUsername() );
+	        	fail = true;
 	        }
 	        
-	        // authentication checks
-	        String user = stage2.getUsername();
-	        Elgamal elgamal = new Elgamal();
-	        elgamal.loadPublicKey(user);
-	        
-	        if (elgamal.verify(stage2.getChallenge())) {
-	        	System.out.println("User " + user + " was authenticated");
-	        	stage2.setStage(AuthMsg.AUTHENTICATED);
+	        // if everything is good until here - start auth
+	        if ( fail == false) {	
+		        // authentication checks
+		        String user = stage2.getUsername();
+		        Elgamal elgamal = new Elgamal();
+		        elgamal.loadPublicKey(user);
+		        
+		        if (elgamal.verify(stage2.getChallenge())) {
+		        	System.out.println("User " + user + " was authenticated");
+		        	stage2.setStage(AuthMsg.AUTHENTICATED);
+		        }
+		        else {
+		        	System.out.println("User " + user + " was not authenticated - signature verification failed");
+		        	stage2.setStage(AuthMsg.AUTH_FAILED);
+		        }
 	        }
+	        // Failure
 	        else {
-	        	System.out.println("User " + user + " could not be authenticated");
 	        	stage2.setStage(AuthMsg.AUTH_FAILED);
 	        }
 	        // send reply to the client
 	        outStream.writeObject(stage2);
 	        return;
+	        
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

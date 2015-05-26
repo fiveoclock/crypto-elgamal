@@ -1,6 +1,9 @@
 package crypto;
 
-public class SignedMessage {
+import java.io.Serializable;
+
+public class SignedMessage implements Serializable {
+	private static final long serialVersionUID = -1298872165113L;
 	private Signature signature;
 	private byte[] msg;
 	

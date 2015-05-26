@@ -1,8 +1,10 @@
 package crypto;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class Signature {
+public class Signature implements Serializable {
+	private static final long serialVersionUID = 298372771663127L;
 	private BigInteger r, s;
 	
 	public Signature() { }

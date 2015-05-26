@@ -51,7 +51,7 @@ public class AuthClient {
         try {
         	// receive stage 1 auth message
 	        AuthMsg stage1 = (AuthMsg) inStream.readObject();
-	        System.out.println("Received challenge");
+	        System.out.println("Received challenge - " + new String(stage1.getChallenge().getMsg()) );
 
 	        // sign the challenge
 	        Signature s = elgamal.sign(stage1.getChallenge().getMsg());

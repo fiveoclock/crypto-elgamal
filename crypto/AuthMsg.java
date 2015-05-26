@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class AuthMsg implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 126821821637878712L;
 	
 	private int stage;
 	private SignedMessage challenge;
@@ -20,9 +20,9 @@ public class AuthMsg implements Serializable {
 		this.stage = START;
 	}
 	
-	public AuthMsg(String challenge) {
+	public AuthMsg(byte[] challenge) {
 		this.stage = CHALLENGE;
-		this.challenge = new SignedMessage(challenge.getBytes());
+		this.challenge = new SignedMessage(challenge);
 	}
 	
 	public AuthMsg(String username, SignedMessage response) {
