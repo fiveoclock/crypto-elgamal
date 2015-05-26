@@ -1,6 +1,11 @@
 package crypto;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.*;
+import java.util.Random;
 
 /**
  * @author alex
@@ -8,8 +13,10 @@ import java.net.*;
  */
 public class AuthServer extends Thread {
 	private NetHelper net = new NetHelper();
-	private Socket clientSocket;
-	private String keys;
+	private Socket socket;
+	
+	private ObjectInputStream inStream;
+	private ObjectOutputStream outStream;
 	
 
 	public AuthServer() { }
@@ -19,8 +26,7 @@ public class AuthServer extends Thread {
 	 * Constructor; for threaded use
 	 */
 	public AuthServer(Socket sock) {
-		this.clientSocket = sock;
-		net.setupHandles(clientSocket);
+		this.socket = sock;
 	}
 	
 	public String askForInput(String msg) {
@@ -34,42 +40,61 @@ public class AuthServer extends Thread {
 	}
 
 	public void run() {
-		String input, output = "";
-		// Elgamal Service
-		Elgamal elgamal = new Elgamal(keys);
-		String msg = "";
-		
-		while (true) {
-			String command = askForInput("# "); 
-			if (command.startsWith("sign")) {
-				msg = askForInput("message: ");
-				Signature signature = elgamal.sign(msg.getBytes());
-				output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
-				net.send(output + "\n");
-			}
-			if (command.startsWith("verify")) {
-				String r, s;
-				msg = askForInput("message: ");
-				r = askForInput("r: ");
-				s = askForInput("s: ");
-
-				SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
-				if (elgamal.verify(sm)) {
-					output = " > Signature is correct!";
-				}
-				else {
-					output = " > Signature is incorrect!";
-				}
-				net.send(output + "\n\n");
-			}
-			if (command.startsWith("help")) {
-				net.send("\n\n");
-			}
-			if (command.startsWith("exit") | command.startsWith("quit")) {
-				net.send("Bye!\n");
-				return;
-			}
-			System.out.println(net.getClientIP() + " " + command + " " + msg);
+        try {
+			outStream = new ObjectOutputStream(socket.getOutputStream());
+	        inStream = new ObjectInputStream(socket.getInputStream());
+	        
+	        BigInteger rand = new BigInteger(64, new Random());
+	        String hostname = InetAddress.getLocalHost().getHostName();
+	        String challenge = System.currentTimeMillis() + "." + rand + "@" + hostname;
+	        System.out.println("Generated challenge: " + challenge);
+	        
+	        AuthMsg stage1 = new AuthMsg(challenge);
+	        outStream.writeObject(stage1);
+			
+	        // receive auth stage 2
+	        AuthMsg stage2 = (AuthMsg) inStream.readObject();
+	        // sanity checks
+	        if (stage2.getStage() != AuthMsg.RESPONSE) {
+	        	System.out.println("Incorrect auth state received");
+	        	return;
+	        }
+	        if (stage2.getChallenge() == null || stage2.getUsername() == null) {
+	        	System.out.println("Malformed message");
+	        	return;
+	        }
+	        if ( !stage2.getChallenge().getMsg().equals(challenge)) {
+	        	System.out.println("Modified challenge received");
+	        	return;
+	        }
+	        // safety measures
+	        if ( !stage2.getUsername().matches("[^a-zA-Z0-9_\\-\\.]")) {
+	        	System.out.println("Illegal username received");
+	        	return;
+	        }
+	        
+	        // authentication checks
+	        String user = stage2.getUsername();
+	        Elgamal elgamal = new Elgamal();
+	        elgamal.loadPublicKey(user);
+	        
+	        if (elgamal.verify(stage2.getChallenge())) {
+	        	System.out.println("User " + user + " was authenticated");
+	        	stage2.setStage(AuthMsg.AUTHENTICATED);
+	        }
+	        else {
+	        	System.out.println("User " + user + " could not be authenticated");
+	        	stage2.setStage(AuthMsg.AUTH_FAILED);
+	        }
+	        // send reply to the client
+	        outStream.writeObject(stage2);
+	        return;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        catch (ClassNotFoundException e) {
+        	System.out.println("Internal error; class not found");
 		}
 	}
 }

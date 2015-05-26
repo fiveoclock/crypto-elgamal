@@ -6,8 +6,12 @@ public class SignedMessage {
 	
 	SignedMessage () {}
 	
-	SignedMessage (byte[] msg, Signature signature) {
+	SignedMessage (byte[] msg) {
 		this.msg = msg;
+	}
+	
+	SignedMessage (byte[] msg, Signature signature) {
+		this(msg);
 		this.signature = signature;
 	}
 	
