@@ -174,9 +174,8 @@ public class Elgamal {
 	 */
 	public boolean loadPrivateKey(String prefix) {
 		a = new BigInteger(fh.readLine("elgamal."+prefix+".priv"));
-		System.out.println("Private key: ");
-		System.out.println("a: " + a);
-		System.out.println("--------------------------");
+		//System.out.println("Private key: ");
+		//System.out.println("a: " + a);
 		return true;
 	}
 	
@@ -196,11 +195,10 @@ public class Elgamal {
 		// calculate p-1
 		pMinusOne = p.subtract(one);
 		
-		System.out.println("\nPublic key: ");
-		System.out.println("p: " + p);
-		System.out.println("g: " + g);
-		System.out.println("A: " + A);
-		System.out.println("--------------------------");
+		//System.out.println("\nPublic key: ");
+		//System.out.println("p: " + p);
+		//System.out.println("g: " + g);
+		//System.out.println("A: " + A);
 		return true;
 	}
 	

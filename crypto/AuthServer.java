@@ -31,9 +31,8 @@ public class AuthServer extends Thread {
         try {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 	        inStream = new ObjectInputStream(socket.getInputStream());
-	        
 	        boolean fail = false;
-	        
+
 	        // generate and send stage 1 authentication message
 	        BigInteger rand = new BigInteger(64, new Random());
 	        String hostname = InetAddress.getLocalHost().getHostName();

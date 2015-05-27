@@ -58,13 +58,13 @@ public class AuthClient {
 	        // generate a signed message from the challenge
 	        SignedMessage response = new SignedMessage(stage1.getChallenge().getMsg(), s);
 	        System.out.println("Signed the challenge");
-	        
+
 	        // create a new AuthMsg
 	        AuthMsg stage2 = new AuthMsg(username, response);
-	        
+
 	        // send response to server
 	        outStream.writeObject(stage2);
-	        
+
 	        // wait for reply
 	        AuthMsg reply = (AuthMsg) inStream.readObject();
 	        if (reply.getStage() == AuthMsg.AUTHENTICATED) {

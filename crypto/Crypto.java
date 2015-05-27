@@ -77,15 +77,18 @@ public class Crypto {
 	
 	private void elgamalAuthClient(String host, String port, String username) {
 		AuthClient client = new AuthClient(username);
+
+		// measure time
+		long start_time, end_time, time1;
+		start_time = System.nanoTime();
+
 		if (client.connect(host, Integer.parseInt(port)) ) {
 			System.out.println("Connected to " + host + ":" + port);
-			
-			long start_time, end_time;
-			long time1, time2;
-
 			client.authenticate();
-			end_time = System.nanoTime();
 		}
+		end_time = System.nanoTime();
+    	time1 = (end_time - start_time)/1000/1000;
+		System.out.println("\nRequired time in ms: " + time1);
 	}
 	
 	private void netStartElgamalService(String prefix, String port) {
