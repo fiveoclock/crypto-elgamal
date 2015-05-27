@@ -11,7 +11,6 @@ public class NetHelper extends Thread {
 	private LibCrypto lib = new LibCrypto();
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
-	private String service;
 	private String keys;
 	
 	private PrintWriter out;
@@ -22,22 +21,19 @@ public class NetHelper extends Thread {
 	
 	/**
 	 * @param socket
-	 * @param service
 	 * Constructor; for threaded use
 	 */
-	public NetHelper(Socket sock, String service) {
-		this(sock, service, null);
+	public NetHelper(Socket sock) {
+		this(sock,  null);
 	}
 	
 	/**
 	 * @param socket
-	 * @param service
 	 * @param keys
 	 * Constructor; for threaded use
 	 */
-	public NetHelper(Socket sock, String service, String keys) {
+	public NetHelper(Socket sock, String keys) {
 		this.clientSocket = sock;
-		this.service = service;
 		this.keys = keys;
 		setupHandles(clientSocket);
 	}
@@ -178,63 +174,44 @@ public class NetHelper extends Thread {
 	}
 
 	public void run() {
-		String input, output = "";
+		String output = "";
 
-		// Hashing Service
-		if (service == "hash") {
-			send("Welcome to the crypto service.\r"
-					+ " Every line you send will be hashed with SHA-1 and sent back.\n"
-					+ " Be careful tough as everything is transmitted unencrypted, thus secret services will most likely capture this.\n");
-
-			while ((input = receiveLine()) != null) {
-				if (!input.equals("")) {
-					String hash = lib.getHexHash("SHA-1", input.getBytes());
-					System.out.println(input + " / SHA-1: " + hash);
-					send(hash + "\n");
-				}
+		Elgamal elgamal = new Elgamal(keys);
+		String msg = "";
+		String help = "The following commands are available: sign, verify, help, exit";
+		
+		send("Welcome to the Elgamal signing and verification service.\n  " + help + "\n\n");
+		while (true) {
+			String command = askForInput("# "); 
+			if (command.startsWith("sign")) {
+				msg = askForInput("message: ");
+				Signature signature = elgamal.sign(msg.getBytes());
+				output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
+				send(output + "\n");
 			}
-		}
-		// Elgamal Service
-		if (service == "elgamal") {
-			Elgamal elgamal = new Elgamal(keys);
-			String msg = "";
-			String help = "The following commands are available: sign, verify, help, exit";
-			
-			send("Welcome to the Elgamal signing and verification service.\n  " + help + "\n\n");
-			while (true) {
-				String command = askForInput("# "); 
-				if (command.startsWith("sign")) {
-					msg = askForInput("message: ");
-					Signature signature = elgamal.sign(msg.getBytes());
-					output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
-					send(output + "\n");
-				}
-				if (command.startsWith("verify")) {
-					String r, s;
-					msg = askForInput("message: ");
-					r = askForInput("r: ");
-					s = askForInput("s: ");
+			if (command.startsWith("verify")) {
+				String r, s;
+				msg = askForInput("message: ");
+				r = askForInput("r: ");
+				s = askForInput("s: ");
 
-					SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
-					if (elgamal.verify(sm)) {
-						output = " > Signature is correct!";
-					}
-					else {
-						output = " > Signature is incorrect!";
-					}
-					send(output + "\n\n");
+				SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
+				if (elgamal.verify(sm)) {
+					output = " > Signature is correct!";
 				}
-				if (command.startsWith("help")) {
-					send(help + "\n\n");
+				else {
+					output = " > Signature is incorrect!";
 				}
-				if (command.startsWith("exit") | command.startsWith("quit")) {
-					send("Bye!\n");
-					return;
-				}
-				System.out.println(getClientIP() + " " + command + " " + msg);
+				send(output + "\n\n");
 			}
+			if (command.startsWith("help")) {
+				send(help + "\n\n");
+			}
+			if (command.startsWith("exit") | command.startsWith("quit")) {
+				send("Bye!\n");
+				return;
+			}
+			System.out.println(getClientIP() + " " + command + " " + msg);
 		}
-		System.out.println("Client disconnected; IP: " + getClientIP());
-		close();
 	}
 }

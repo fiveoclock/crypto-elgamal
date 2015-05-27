@@ -13,31 +13,25 @@ public class Crypto {
 		c.checkArgs(1);
 		
 		switch(args[0]) {
-		case "hash": 			c.checkArgs(3); c.hash(args[1], args[2]); break;
-		case "network":			c.checkArgs(2); switch(args[1]) {
-			case "server":			c.checkArgs(3);	c.netServer(args[2]); break;
-			case "client":			c.checkArgs(5);	c.netClient(args[2], args[3], args[4]); break;
-			default: 				printUsage("Unknown command in network");
-			} break;
 		case "elgamal": 		c.checkArgs(2); switch(args[1]) {
 			case "generate-keys": 	c.checkArgs(3); c.elgamalGenerateKeys(args[2]); break;
+
 			case "encrypt":			c.checkArgs(4);	c.elgamalEncrypt(args[2], args[3]); break;
 			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
+
 			case "sign": 			c.checkArgs(4); c.elgamalSign(args[2], args[3]); break;
 			case "verify": 			c.checkArgs(5);	c.elgamalVerify(args[2], args[3], args[4], args[5]); break;
+
 			case "auth-server":		c.checkArgs(3); c.elgamalAuthServer(args[2]); break;
 			case "auth-client":		c.checkArgs(5);	c.elgamalAuthClient(args[2], args[3], args[4]); break;
-			case "service": 		c.checkArgs(4);	c.netStartElgamalService(args[2], args[3]); break;
+
+			case "sign-server":		c.checkArgs(4);	c.netStartElgamalService(args[2], args[3]); break;
+			case "sign-client":		c.checkArgs(5); c.netClient(args[2], args[3], args[4]); break;
+
 			default: 				printUsage("Unknown command in elgamal");
 			} break;
 		default: 					printUsage("Please specify command");
 		}
-	}
-	
-	// Hashing
-	private void hash(String func, String text) {
-		LibCrypto lib = new LibCrypto();
-		System.out.println(lib.getHexHash(func, text.getBytes()));
 	}
 
 	// Elgamal
@@ -97,7 +91,7 @@ public class Crypto {
 			System.out.println("Listening on port: " + port);
 			
 			while (true) {
-				NetHelper serverThread = new NetHelper(net.acceptConnection(), "elgamal", prefix);
+				NetHelper serverThread = new NetHelper(net.acceptConnection(), prefix);
 				serverThread.start();
 				System.out.println("Client connected; IP: " + net.getClientIP());
 			}
@@ -119,20 +113,6 @@ public class Crypto {
 		System.out.println("Decrypted message (m'): " + m);
 	}	
 	
-	
-	// Networking
-	private void netServer(String port) {
-		NetHelper net = new NetHelper();
-		if (net.listen(Integer.parseInt(port)) ) {
-			System.out.println("Listening on port: " + port);
-			
-			while (true) {
-				NetHelper serverThread = new NetHelper(net.acceptConnection(), "hash");
-				serverThread.start();
-				System.out.println("Client connected; IP: " + net.getClientIP());
-			}
-		}
-	}
 	private void netClient(String host, String port, String message) {
 		NetHelper net = new NetHelper();
 		if (net.connect(host, Integer.parseInt(port)) ) {
@@ -140,7 +120,6 @@ public class Crypto {
 			
 			// remove newline and carriage return characters from message
 			message = message.replace("\n", "").replace("\r", "");
-			
 			long start_time, end_time;
 			long time1, time2;
 
