@@ -46,24 +46,6 @@ public class Elgamal {
 	public void generateKeys(int length) {
 		System.out.print("Calculating domain parameters p and q ");
 		BigInteger q;
-		/*
-		BigInteger low = new BigInteger(520, lib.getRandom());;
-		BigInteger max = BigInteger.ZERO;
-		Random rand = new Random(); 
-		do {
-			g = new BigInteger(64, rand);
-			//System.out.print(".");
-			if (g.compareTo(low) == -1) {
-				low = g;
-				System.out.println("low " + low.bitLength() + ": " + low);
-			}
-			if (g.compareTo(max) == 1) {
-				max = g;
-				System.out.println("max " + max.bitLength() + ": " + max);
-			}
-		}
-		while (true); */
-		
 		do {
 			q = BigInteger.probablePrime(length-1, lib.getRandom());
 			p = q.multiply(two).add(one);

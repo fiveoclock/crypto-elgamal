@@ -8,10 +8,6 @@ import java.net.*;
 import java.util.Arrays;
 import java.util.Random;
 
-/**
- * @author alex
- * 
- */
 public class AuthServer extends Thread {
 	private Socket socket;
 	private ObjectInputStream inStream;

@@ -5,10 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
 
-/**
- * @author alex
- * 
- */
 public class AuthClient {
 	private Socket socket;
 	private ObjectInputStream inStream;
