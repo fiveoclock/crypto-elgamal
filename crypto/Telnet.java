@@ -3,11 +3,7 @@ package crypto;
 import java.io.*;
 import java.net.*;
 
-/**
- * @author alex
- * This class combines various methods that are needed for both servers and clients
- */
-public class NetHelper extends Thread {
+public class Telnet extends Thread {
 	private LibCrypto lib = new LibCrypto();
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
@@ -17,13 +13,13 @@ public class NetHelper extends Thread {
 	private InputStreamReader insr;
 	private BufferedReader inbr;
 
-	public NetHelper() { }
+	public Telnet() { }
 	
 	/**
 	 * @param socket
 	 * Constructor; for threaded use
 	 */
-	public NetHelper(Socket sock) {
+	public Telnet(Socket sock) {
 		this(sock,  null);
 	}
 	
@@ -32,7 +28,7 @@ public class NetHelper extends Thread {
 	 * @param keys
 	 * Constructor; for threaded use
 	 */
-	public NetHelper(Socket sock, String keys) {
+	public Telnet(Socket sock, String keys) {
 		this.clientSocket = sock;
 		this.keys = keys;
 		setupHandles(clientSocket);
@@ -160,6 +156,69 @@ public class NetHelper extends Thread {
 	 */
 	public String getClientIP() {
 		return clientSocket.getInetAddress().getHostAddress().toString();
+	}
+	
+	public void signClient(String host, String port, String message) {
+		if (connect(host, Integer.parseInt(port)) ) {
+			System.out.println("Connected to " + host + ":" + port);
+			
+			// remove newline and carriage return characters from message
+			message = message.replace("\n", "").replace("\r", "");
+			long start_time, end_time;
+			long time1, time2;
+
+			String rec;
+			do {
+				rec = receiveLine();
+			}
+			while ( !rec.equals("") );
+			
+			// Signing
+			System.out.println("Sending signing request for message: \"" + message + "\"");
+			send("sign\n");
+			send(message + "\n");
+			start_time = System.nanoTime();
+			
+			String r = ""; 
+			String s = "";
+			do {
+				rec = receiveLine();
+				if (rec.startsWith(" r: ")) {
+					r = rec.substring(4);
+				}
+				if (rec.startsWith(" s: ")) {
+					s = rec.substring(4);
+				}
+			}
+			while ( !rec.equals("") );
+			end_time = System.nanoTime();
+			time1 = (end_time - start_time)/1000/1000;
+			System.out.println("Received signature\n");
+			
+			// Verficication
+			System.out.println("Sending verification request");
+			send("verify\n");
+			send(message + "\n");
+			send(r+"\n");
+			send(s+"\n");
+			start_time = System.nanoTime();
+			
+			rec = receiveLine();
+			if (rec.endsWith(" > Signature is correct!")) {
+				System.out.println(" > correct");
+			}
+			else if (rec.endsWith(" > Signature is incorrect!")) {
+				System.out.println(" > not correct!");
+			}
+			else {
+				System.out.println("ERROR: " + rec);
+			}
+			end_time = System.nanoTime();
+			time2 = (end_time - start_time)/1000/1000;
+			
+			send("exit\n");
+			System.out.println("\nRequired time in ms: \nSigning: " + time1 + "\nVerifying: " + time2);
+		}
 	}
 	
 	
