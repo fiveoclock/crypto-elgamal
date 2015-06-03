@@ -15,10 +15,6 @@ public class AuthServer extends Thread {
 
 	public AuthServer() { }
 	
-	/**
-	 * @param socket
-	 * Constructor; for threaded use
-	 */
 	public AuthServer(Socket sock) {
 		this.socket = sock;
 	}
