@@ -13,11 +13,6 @@ public class Signature implements Serializable {
 		this.r = r;
 		this.s = s;
 	}
-	
-	public Signature(String r, String s) {
-		this.r = new BigInteger(r);
-		this.s = new BigInteger(s);
-	}
 
 	public BigInteger getR() {
 		return r;

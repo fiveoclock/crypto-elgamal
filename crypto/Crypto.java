@@ -14,7 +14,7 @@ public class Crypto {
 		
 		switch(args[0]) {
 		case "elgamal": 		c.checkArgs(2); switch(args[1]) {
-			case "generate-keys": 	c.checkArgs(3); c.elgamalGenerateKeys(args[2]); break;
+			case "generate-keys": 	c.checkArgs(4); c.elgamalGenerateKeys(args[2], args[3]); break;
 
 			case "encrypt":			c.checkArgs(4);	c.elgamalEncrypt(args[2], args[3]); break;
 			case "decrypt": 		c.checkArgs(5); c.elgamalDecrypt(args[2], args[3], args[4]); break;
@@ -35,9 +35,9 @@ public class Crypto {
 	}
 
 	// Elgamal
-	private void elgamalGenerateKeys(String prefix) {
+	private void elgamalGenerateKeys(String prefix, String keylength) {
 		Elgamal elgamal = new Elgamal();
-		elgamal.generateKeys(2048);
+		elgamal.generateKeys(Integer.parseInt(keylength));
 		elgamal.saveKeys(prefix);
 	}
 	private void elgamalSign(String prefix, String message) {
@@ -47,7 +47,10 @@ public class Crypto {
 	}
 	private void elgamalVerify(String prefix, String r, String s, String message) {
 		Elgamal elgamal = new Elgamal(prefix);
-		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r, s));
+		BigInteger r2, s2;
+		r2 = new BigInteger(r);
+		s2 = new BigInteger(s);
+		SignedMessage sm = new SignedMessage(message.getBytes(), new Signature(r2, s2));
 		
 		if (elgamal.verify(sm)) {
 			System.out.println("> Correct!");

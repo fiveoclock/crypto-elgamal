@@ -1,6 +1,7 @@
 package crypto;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.*;
 
 public class Telnet extends Thread {
@@ -245,21 +246,27 @@ public class Telnet extends Thread {
 			if (command.startsWith("sign")) {
 				msg = askForInput("message: ");
 				Signature signature = elgamal.sign(msg.getBytes());
-				output = "Signature \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
+				output = "Signature: \n r: " + signature.getR() + "\n s: " + signature.getS() +"\n";
 				send(output + "\n");
 			}
 			if (command.startsWith("verify")) {
-				String r, s;
+				BigInteger r, s;
 				msg = askForInput("message: ");
-				r = askForInput("r: ");
-				s = askForInput("s: ");
-
-				SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
-				if (elgamal.verify(sm)) {
-					output = " > Signature is correct!";
+				
+				try {
+					r = new BigInteger( askForInput("r: ") );
+					s = new BigInteger( askForInput("s: ") );
+					
+					SignedMessage sm = new SignedMessage(msg.getBytes(), new Signature(r, s));
+					if (elgamal.verify(sm)) {
+						output = " > Signature is correct!";
+					}
+					else {
+						output = " > Signature is incorrect! Values r and s must be numbers.";
+					}
 				}
-				else {
-					output = " > Signature is incorrect!";
+				catch (NumberFormatException e) {
+					output = " > Incorrect format!";
 				}
 				send(output + "\n\n");
 			}
