@@ -6,13 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author alex
  * Provides Elgamal key generation and handling, encryption and decryption
- * 
- * todo:
-	adapt bitlenght
-	document
-	generate a and g without lower length limit
  */
 public class Elgamal {
 	private static BigInteger zero = BigInteger.ZERO;
