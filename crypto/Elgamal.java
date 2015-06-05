@@ -1,6 +1,9 @@
 package crypto;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -45,31 +48,103 @@ public class Elgamal {
 	 */
 	public void generateKeys(int length) {
 		System.out.print("Calculating domain parameters p and q ");
-		BigInteger q;
+		BigInteger maxfactor = BigInteger.valueOf(length/100);;
+		BigInteger factor = BigInteger.valueOf(2);
+		
+		final int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 
+				47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 
+				113, 127, 131, 137, 139, 149, 151 };
+		
+		BigInteger q  = one;
+		BigInteger q2 = one;
+		/*
 		do {
 			q = BigInteger.probablePrime(length-1, lib.getRandom());
 			p = q.multiply(two).add(one);
 			System.out.print(".");
 		}
 		while (!q.multiply(two).add(one).isProbablePrime(primeCertainty));
+		*/
+
+		do {
+			p = BigInteger.probablePrime(length, lib.getRandom());
+			//q = p.subtract(one).divide(two);
+			
+			for(int i=0; i < primes.length; i++) {
+				System.out.print("." + primes[i]);
+				q2 = BigInteger.valueOf(primes[i]);
+				q = p.subtract(one).divide(q2);
+				if (q.isProbablePrime(primeCertainty))
+					break;
+			}
+			
+
+				
+				
+			/*
+			factor = BigInteger.valueOf(2);
+			do {
+				System.out.print(".");
+				q = p.subtract(one).divide(factor);
+				if (q.isProbablePrime(primeCertainty))
+					break;
+				factor = factor.add(one);
+			}
+			while ( factor.compareTo(maxfactor) <= 0 );
+			System.out.print(factor);
+
+			*/
+			/*
+			for (int i = 2; i <= factor; i++) {
+				q = p.subtract(one).divide(BigInteger.valueOf(factor));
+				System.out.print("." + i);
+				if (q.isProbablePrime(primeCertainty))
+					break;
+			} */
+		}
+		while (!q.isProbablePrime(primeCertainty));
 		System.out.println("\np: " + p + " Bitlength: " + p.bitLength());
-		System.out.println("q: " + q);
+		System.out.println("q: " + q + " Bitlength: " + q.bitLength());
 		pMinusOne = p.subtract(one);
 		
+		/*
+		// primefactors
+		List<BigInteger> factors = primeFactors(factor);
+		factors.add(q);
+		*/
+		
 		// Find a Generator for the group 
-		BigInteger gTest;
+		BigInteger gTest1, gTest2;
 		System.out.print("\nSearching for a generator ");
 		do {
-			g = new BigInteger(length-lib.randInt(length-1), lib.getRandom());
+			g = new BigInteger(length-lib.randInt(length/2), lib.getRandom());
+			System.out.print(".");
+			gTest1 = g.modPow(pMinusOne.divide(q), p);
+			gTest2 = g.modPow(pMinusOne.divide(q2), p);
 			
+			/*
+			Iterator<BigInteger> i = factors.iterator();
+			while(i.hasNext()) {
+				BigInteger f = (BigInteger) i.next();   // This is where Object comes in.
+				
+				gTest = g.modPow(pMinusOne.divide(f), p);
+				if (gTest.equals(one)) {
+					break;
+				}
+			}
+			*/
+			
+			
+			/*
 			// Determine a generator - Algorithm 4.86
 			// if the term   g ^ ((p-1)/q)
 			// is not 1 then it is a generator.
 			// From the previous calculation we know that (p-1)/q = 2
 			gTest = g.modPow(q, p);
 			System.out.print(".");
+			*/
 		}
-		while (gTest.equals(one) || g.equals(zero));
+		while (gTest1.equals(one) || gTest2.equals(one) || g.equals(zero));
 		System.out.println("\ng: " + g);
 		
 		// Generate a
@@ -95,6 +170,18 @@ public class Elgamal {
 	}
 	
 	
+	private List<BigInteger> primeFactors(BigInteger number) {
+		List<BigInteger> factors = new ArrayList<BigInteger>();
+		for (BigInteger i = BigInteger.valueOf(2); i.compareTo(number) <= 0; i.add(BigInteger.ONE)) {
+			while (number.mod(i).compareTo(zero) == 0) {
+				factors.add(i);
+				number = number.divide(i);
+				System.out.print("-" + i);
+			}
+		}
+		return factors;
+	}
+
 	/**
 	 * Debug method to check if the provided number is a generator of p.
 	 * Ofcourse this is only feasable with small groups
