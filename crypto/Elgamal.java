@@ -41,14 +41,15 @@ public class Elgamal {
 	 */
 	public void generateKeys(int length) {
 		BigInteger maxfactor = BigInteger.valueOf(length/512).pow(3);
-		System.out.print("Calculating domain parameter p (and prime factors of (p-1); using max-factor: " + maxfactor + ")");
-		BigInteger factor = two;
+		System.out.print("Calculating domain parameter p (and prime factors of (p-1), using max-factor: " + maxfactor + ") ");
 		BigInteger q;
+		BigInteger factor;
 
 		do {
 			p = BigInteger.probablePrime(length, lib.getRandom());
 			pMinusOne = p.subtract(one);
 
+			factor = two;
 			do {
 				System.out.print(".");
 				q = pMinusOne.divide(factor);
