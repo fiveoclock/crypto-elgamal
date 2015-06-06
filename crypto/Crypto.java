@@ -138,7 +138,7 @@ public class Crypto {
         .append("Usage: crypto command [sub-command] [args]                  \n")
         .append("                                                            \n")
         .append("  elgamal:                                                  \n")
-        .append("     generate-keys [key-prefix]                             \n")
+        .append("     generate-keys [key-prefix] [length]                    \n")
         .append("       - generates elgamal keys and saves them in files named elgamal.[prefix].key\n")
         .append("                                                            \n")
 
