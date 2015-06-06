@@ -21,7 +21,7 @@ Das Programm wurde in Java geschrieben. Nachfolgend ist aufgelistet, wie das Pro
 Usage: crypto command [sub-command] [args]                  
                                                             
   elgamal:                                                  
-     generate-keys [key-prefix]                             
+     generate-keys [key-prefix] [length]
        - generates elgamal keys and saves them in files named elgamal.[prefix].key
                                                             
      sign [key-prefix] [input]                              
